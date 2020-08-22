@@ -33,12 +33,12 @@
           <span>{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('couponList.frequency_day')" prop="frequency_day" align="center" width="150">
+      <el-table-column :label="$t('couponList.frequency_day')" prop="frequency_day" align="center" width="130">
         <template slot-scope="{row}">
           <span>{{ dayChange[row.frequency_day-1] }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('couponList.frequency_num')" prop="frequency_num" align="center" width="150">
+      <el-table-column :label="$t('couponList.frequency_num')" prop="frequency_num" align="center" width="130">
         <template slot-scope="{row}">
           <span>{{ numChange[row.frequency_num-1] }}</span>
         </template>
@@ -58,9 +58,14 @@
           <span>{{ row.discount }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('couponList.doorsill')" prop="doorsill" align="center" width="200">
+      <el-table-column :label="$t('couponList.doorsill')" prop="doorsill" align="center" width="130">
         <template slot-scope="{row}">
           <span>{{ row.doorsill }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('couponList.validTime')" prop="validTime" align="center" width="130">
+        <template slot-scope="{row}">
+          <span>{{ row.validTime }}</span>
         </template>
       </el-table-column>
 
@@ -70,7 +75,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" align="center" width="200" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleEdit(row)">
             {{ $t('couponList.edit') }}
@@ -166,10 +171,13 @@
         </el-form-item>
 
         <el-form-item label="优惠券活动时间">
-          <el-select v-model="doorsill" placeholder="请选择优惠券活动时间">
-            <el-option label="无" value="false" />
-            <el-option label="时间段限制" value="true" />
-          </el-select>
+          <el-tooltip class="item" effect="light" content="这里填的是优惠券规则的使用时间" style="font-size: 14px" placement="right">
+
+            <el-select v-model="doorsill" placeholder="请选择优惠券活动时间">
+              <el-option label="无" value="false" />
+              <el-option label="时间段限制" value="true" />
+            </el-select>
+          </el-tooltip>
         </el-form-item>
 
         <el-form-item v-if="timeShow" label="活动时间">
@@ -186,6 +194,23 @@
           </div>
         </el-form-item>
 
+        <el-form-item label="优惠券有效时间">
+          <el-tooltip class="item" effect="light" content="这里填的是一天内可以使用优惠券的时间" style="font-size: 14px" placement="right">
+            <el-time-picker
+              v-model="couponForm.validTime"
+              is-range
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              placeholder="选择时间范围"
+              :picker-options="{
+                selectableRange: '00:00:00 - 24:00:00'
+              }"
+            />
+
+          </el-tooltip>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="confirmForm">{{ subbitName }}</el-button>
           <el-button @click="cancelForm">取消</el-button>
@@ -198,6 +223,9 @@
 <script>
 export default {
   name: 'CouponRule',
+  filters: {
+
+  },
   data() {
     return {
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
@@ -218,14 +246,14 @@ export default {
       },
       discountCode: [],
       couponList: [
-        { id: '0', type: '餐饮券', name: '123', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 },
-        { id: '1', type: '客房券', name: '1', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 },
-        { id: '2', type: '棋牌券', name: '456', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 }
+        { id: '0', type: '餐饮券', name: '123', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' },
+        { id: '1', type: '客房券', name: '1', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' },
+        { id: '2', type: '棋牌券', name: '456', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' }
       ],
       listCopy: [
-        { id: '0', type: '餐饮券', name: '123', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 },
-        { id: '1', type: '客房券', name: '1', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 },
-        { id: '2', type: '棋牌券', name: '456', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1 }
+        { id: '0', type: '餐饮券', name: '123', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' },
+        { id: '1', type: '客房券', name: '1', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' },
+        { id: '2', type: '棋牌券', name: '456', request: '402', discount: '折扣', doorsill: '无', moneysill: 200, frequency_day: 1, frequency_num: 1, validTime: '06:23-20:00' }
       ],
       couponFilter: {
         id: '',
@@ -241,7 +269,8 @@ export default {
         doorsill: '',
         moneysill: '',
         frequency_day: 1,
-        frequency_num: 1
+        frequency_num: 1,
+        validTime: ''
       },
       pickerOptions: {
         shortcuts: [{
@@ -314,11 +343,11 @@ export default {
       // eslint-disable-next-line eqeqeq
       const index = this.couponList.findIndex(a => a.id == this.couponForm.id)
       // console.log(index)
-
+      // console.log(this.couponForm)
       // console.log(index)
       if (index !== -1) {
         const obj2 = { ...this.couponForm }
-
+        obj2.validTime = this.formatTime(obj2.validTime)
         // this.couponList[index] = obj2
         this.$set(this.couponList, index, obj2)
         this.$message({
@@ -329,6 +358,7 @@ export default {
       } else {
         this.couponForm.id = this.idPlus
         const obj2 = { ...this.couponForm }
+        obj2.validTime = this.formatTime(obj2.validTime)
 
         this.idPlus += 1
         this.couponList.push(obj2)
@@ -341,6 +371,26 @@ export default {
       this.couponForm.id = this.idPlus
       this.couponForm.frequency_day = 1
       this.couponForm.frequency_num = 1
+    },
+    formatTime(data) {
+      let hours0 = data[0].getHours()
+      let minutes0 = data[0].getMinutes()
+
+      let hours1 = data[1].getHours()
+      let minutes1 = data[1].getMinutes()
+      if (hours0 < 10) {
+        hours0 = '0' + hours0
+      }
+      if (hours1 < 10) {
+        hours1 = '0' + hours1
+      }
+      if (minutes0 < 10) {
+        minutes0 = '0' + minutes0
+      }
+      if (minutes1 < 10) {
+        minutes1 = '0' + minutes1
+      }
+      return hours0 + ':' + minutes0 + '-' + hours1 + ':' + minutes1
     },
     cancelForm() {
       this.diagShow = false

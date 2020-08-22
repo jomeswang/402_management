@@ -117,12 +117,17 @@
           <span>{{ row.deposit | formatPrice }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" align="center" width="330" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleEdit(row, $index)">
+          <el-button type="success" size="mini" @click="handleEdit(row, $index)">
             {{ $t('table.editRoom') }}
           </el-button>
-
+          <el-button type="primary" size="mini" @click="handleConfirm(row, $index)">
+            {{ $t('table.confirmOrder') }}
+          </el-button>
+          <el-button type="danger" size="mini" @click="handleCancel(row, $index)">
+            {{ $t('table.cancelOrder') }}
+          </el-button>
           <el-button size="mini" @click="showDetail(row.order_id)">
             {{ $t('table.detail') }}
           </el-button>
@@ -172,6 +177,21 @@
         </el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="取消订单"
+      :visible.sync="showCancel"
+      width="30%"
+    >
+      <div class="inputCustom" style="display: flex;">
+        <span style="width: 100px; margin: auto;">退钱金额:</span>
+        <el-input v-model="cancelPrice" clearable placeholder="请输入退钱金额" />
+      </div>
+      <div slot="footer">
+        <el-button @click="cancelCancel">取 消</el-button>
+        <el-button type="primary" @click="confirmCancel">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -181,9 +201,9 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarTypeOptions = [
-  { key: '未入住', display_name: '未入住' },
+  { key: '待入住', display_name: '待入住' },
   { key: '已入住', display_name: '已入住' },
-  { key: '待退房', display_name: '待退房' },
+  { key: '待确认', display_name: '待确认' },
   { key: '已完成', display_name: '已完成' },
   { key: '已取消', display_name: '已取消' }
 ]
@@ -204,9 +224,9 @@ export default {
     },
     statusFilter(status) {
       const statusMap = {
-        未入住: 'info',
+        待入住: 'info',
         已入住: 'success',
-        待退房: 'warning',
+        待确认: 'warning',
         已完成: '',
         已取消: 'danger'
       }
@@ -221,14 +241,17 @@ export default {
       showPrice: false,
       showDeposit: false,
       roomStatus: '',
+      cancelPrice: '',
+      cancelId: '',
       handleRoomStatus: {
         id: '',
         price: '',
-        deposit: '',
+        // deposit: '',
         status: ''
       },
       showHandleRoom: false,
       showCreditId: false,
+      showCancel: false,
       tableKey: 0,
       list: [
         { order_id: '13213', order_begin_time: '2019-02-01', order_end_time: '2019-02-02', credit_id: '1321313', order_name: 'llw', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:30' },
@@ -249,7 +272,7 @@ export default {
       },
       calendarTypeOptions,
       sortOptions: [{ label: '编号升序', key: '+id' }, { label: '编号降序', key: '-id' }],
-      statusOptions: ['未入住', '已入住', '待退房', '已完成', '已取消'],
+      statusOptions: ['已入住', '已完成'],
       showReviewer: false,
       dialogStatus: '',
       order_detail: [
@@ -267,8 +290,8 @@ export default {
   },
   watch: {
     roomStatus() {
-      if (this.roomStatus === '待退房') {
-        this.showDeposit = true
+      if (this.roomStatus === '待确认') {
+        // this.showDeposit = true
       } else if (this.roomStatus === '已取消') {
         this.showPrice = true
       } else {
@@ -408,8 +431,22 @@ export default {
       }
     },
 
-    // 取消订单
-    handleCancle(row) {
+    cancelCancel() {
+      this.showCancel = false
+      this.cancelPrice = ''
+      this.cancelId = ''
+    },
+
+    confirmCancel() {
+      this.showCancel = false
+      const index = this.list.findIndex(item => item.order_id === this.cancelId)
+      this.list[index].status = '已取消'
+      this.cancelPrice = ''
+
+      //  同步 cancelPrice
+    },
+    //  取消订单
+    handleCancel(row, index) {
       if (row.status === '已取消') {
         this.$message({
           message: '警告，不可以重复点击',
@@ -417,60 +454,21 @@ export default {
         })
         return
       }
-      // 弹出框 输入
-      this.$prompt('请输入退款金额', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '已退款 ' + value + '元'
-        })
-        row.status = '已取消'
-        this.listCopy = this.list
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        })
-      })
+      this.showCancel = true
+      this.cancelId = row.order_id
+      this.cancelPrice = row.price
+      // row.status = '已取消'
     },
-
-    //  退房
-    handleDelete(row, index) {
-      if (row.status === '待退房') {
-        this.$message({
-          message: '警告，不可以重复点击',
-          type: 'warning'
-        })
-        return
-      }
-
-      // 弹出框 输入
-      this.$prompt('请输入退押金金额', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: row.deposit
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '已退押金 ' + value + '元'
-        })
-        row.status = '待退房'
-        this.listCopy = this.list
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        })
-      })
+    //  确认订单
+    handleConfirm(row, index) {
+      row.status = '待入住'
     },
     // 房间操作
     handleEdit(row) {
       this.showHandleRoom = true
       this.roomStatus = row.status
       this.handleRoomStatus.price = row.price
-      this.handleRoomStatus.deposit = row.deposit
+      // this.handleRoomStatus.deposit = row.deposit
       this.handleRoomStatus.status = row.status
       this.handleRoomStatus.id = row.order_id
     },
@@ -480,9 +478,6 @@ export default {
       const index = this.list.findIndex(item => item.order_id === this.handleRoomStatus.id)
       console.log(index)
       this.list[index].status = this.roomStatus
-      if (this.roomStatus === '待退房') {
-        this.list[index].deposit = this.handleRoomStatus.deposit
-      }
       if (this.roomStatus === '已取消') {
         this.list[index].price = this.handleRoomStatus.price
       }
@@ -491,7 +486,7 @@ export default {
     cancelStatusForm() {
       this.showHandleRoom = false
       this.showPrice = false
-      this.showDeposit = false
+      // this.showDeposit = false
       Object.keys(this.handleRoomStatus).forEach(key => { this.handleRoomStatus[key] = '' })
       this.roomStatus = ''
     }

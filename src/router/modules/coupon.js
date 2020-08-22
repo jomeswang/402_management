@@ -13,12 +13,6 @@ const couponRouter = {
   },
   children: [
     {
-      path: 'userCoupon',
-      name: 'UserCoupon',
-      component: () => import('@/views/coupon/userCoupon'),
-      meta: { title: 'userCoupon' }
-    },
-    {
       path: 'couponRule',
       name: 'CouponRule',
       component: () => import('@/views/coupon/couponRule'),
@@ -29,8 +23,13 @@ const couponRouter = {
       name: 'CouponList',
       component: () => import('@/views/coupon/couponList'),
       meta: { title: 'couponList' }
+    },
+    {
+      path: 'userCoupon',
+      name: 'UserCoupon',
+      component: () => import('@/views/coupon/userCoupon'),
+      meta: { title: 'userCoupon' }
     }
-
   ]
 }
 

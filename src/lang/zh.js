@@ -156,7 +156,9 @@ export default {
     price: '金额',
     deposit: '押金',
     reachTime: '预计到达时间',
-    editRoom: '操作'
+    editRoom: '操作',
+    confirmOrder: '确认订单',
+    cancelOrder: '取消订单'
   },
   example: {
     warning: '创建和编辑页面是不能被 keep-alive 缓存的，因为keep-alive 的 include 目前不支持根据路由来缓存，所以目前都是基于 component name 来进行缓存的。如果你想类似的实现缓存效果，可以使用 localStorage 等浏览器缓存方案。或者不要使用 keep-alive 的 include，直接缓存所有页面。详情见'
@@ -225,7 +227,8 @@ export default {
     cancel: '取消',
     discountCode: '发优惠码',
     frequency_day: '发放频率之天数',
-    frequency_num: '发放频率之数量'
+    frequency_num: '发放频率之数量',
+    validTime: '一天内有效时间'
   },
   couponShow: {
     id: '订单号',
@@ -236,5 +239,17 @@ export default {
     discount: '折扣',
     type: '优惠券类型',
     userName: '用户名称'
+  },
+  userCoupon: {
+    couponId: '优惠券ID',
+    couponName: '优惠券名称',
+    userName: '用户名称',
+    type: '分类',
+    status: '状态',
+    discount: '折扣',
+    timeBegin: '有效期开始',
+    timeEnd: '有效期结束',
+    validTime: '有效时间',
+    couponNum: '拥有数量'
   }
 }

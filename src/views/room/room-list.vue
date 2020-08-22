@@ -116,12 +116,7 @@ export default {
     statusFilter(status) {
       const statusMap = {
         上线: 'success',
-        下线: 'info',
-        未入住: 'info',
-        已入住: 'success',
-        待退房: 'warning',
-        已完成: '',
-        已取消: 'danger'
+        下线: 'info'
       }
       return statusMap[status]
     }

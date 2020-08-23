@@ -195,20 +195,31 @@
         </el-form-item>
 
         <el-form-item label="优惠券有效时间">
-          <el-tooltip class="item" effect="light" content="这里填的是一天内可以使用优惠券的时间" style="font-size: 14px" placement="right">
-            <el-time-picker
-              v-model="couponForm.validTime"
-              is-range
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              placeholder="选择时间范围"
-              :picker-options="{
-                selectableRange: '00:00:00 - 24:00:00'
-              }"
-            />
+          <el-row :gutter="10">
+            <el-col :span="10">
+              <el-tooltip class="item" effect="light" content="这里填的是一天内可以使用优惠券的时间" style="font-size: 14px" placement="right">
+                <el-time-picker
+                  v-model="couponForm.validTime[0]"
+                  :picker-options="{
+                    selectableRange: '00:00:00 - 23:59:59'
+                  }"
+                  placeholder="开始时间"
+                />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="10">
+              <el-tooltip class="item" effect="light" content="这里填的是一天内可以使用优惠券的时间" style="font-size: 14px" placement="right">
+                <el-time-picker
+                  v-model="couponForm.validTime[1]"
+                  :picker-options="{
+                    selectableRange: '00:00:00 - 23:59:59'
+                  }"
+                  placeholder="结束时间"
+                />
+              </el-tooltip>
+            </el-col>
+          </el-row>
 
-          </el-tooltip>
         </el-form-item>
 
         <el-form-item>
@@ -270,7 +281,7 @@ export default {
         moneysill: '',
         frequency_day: 1,
         frequency_num: 1,
-        validTime: ''
+        validTime: []
       },
       pickerOptions: {
         shortcuts: [{
@@ -332,6 +343,8 @@ export default {
       this.diagShow = true
       const obj2 = { ...row }
       this.couponForm = obj2
+      this.couponForm.validTime = []
+
       this.subbitName = '编辑完成'
     },
     handleDelete(row, index) {
@@ -371,6 +384,7 @@ export default {
       this.couponForm.id = this.idPlus
       this.couponForm.frequency_day = 1
       this.couponForm.frequency_num = 1
+      this.couponForm.validTime = []
     },
     formatTime(data) {
       let hours0 = data[0].getHours()
@@ -399,6 +413,7 @@ export default {
       this.subbitName = '立即创建'
       this.couponForm.frequency_day = 1
       this.couponForm.frequency_num = 1
+      this.couponForm.validTime = []
     },
     handleClose(done) {
       this.dialogDiscount = false

@@ -65,8 +65,13 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog class="detailRoom" :visible.sync="dialogDetailVisible" width="30%" :title="currentRoom.name">
-      <img :src="currentRoom.imgUrl" alt="房间图片" width="90%">
+    <el-dialog class="detailRoom" :visible.sync="dialogDetailVisible" width="40%" :title="currentRoom.name">
+      <el-carousel height="200px">
+        <el-carousel-item v-for="(item,index) in currentRoom.imgUrl" :key="index">
+          <img :src="item.url" :alt="item.name" style=" height: 260px">
+        </el-carousel-item>
+      </el-carousel>
+      <!-- <img :src="currentRoom.imgUrl" alt="房间图片" width="90%"> -->
       <div class="roomDetail">
         <h1>房型信息</h1>
         <el-row :gutter="10">
@@ -129,14 +134,17 @@ export default {
       // roomList: [
       // { id: '123', status: '上线', name: 'jkl', description: 'fsdf', detail: 'fdsfs', detail2: 'fdsf', area: '123', bed: '465', peopleNum: '789', addBed: '123', morningTea: '456', window: '132', bathroom: '456', convenience: '1223', guestRoom: '456', introduction: 'sfsd', price: '12', deposit: '12', imgUrl: '12', read: '465', bookKnow: '465', roomNum: 100 }
       // ],
-      listLoading: false,
+      listLoading: true,
       dialogDetailVisible: false
 
     }
   },
+
   computed: {
     ...mapState({
-      roomList: state => state.room.roomList
+      roomList: state => state.room.roomList,
+      deleteOneUrl: state => state.room.deleteOneUrl
+
     }),
     ...mapActions('room', [
       'getRoomList'
@@ -148,14 +156,26 @@ export default {
       // console.log(this.currentRoom)
     }
   },
-  created() {
-    // console.log(this.$store)
-    //  同步Roomlist  在 state 中
-
-    this.getRoomList
+  activated() {
+    this.handleGet()
   },
+  mounted() {
+    this.handleGet()
+  },
+  // created() {
+  //   // console.log(this.$store)
+  //   //  同步Roomlist  在 state 中
+  //   // this.getRoomList
+  //   this.handleGet()
+  // },
   methods: {
-
+    handleGet() {
+      this.listLoading = true
+      // console.log('123')
+      this.$store.dispatch('room/getRoomList')
+        .then((res) => { this.listLoading = false })
+        .catch(err => { console.log(err) })
+    },
     handleEdit(row) {
       const id = row.id
       this.$router.push({ name: 'EditRoom', params: { id: id }})
@@ -166,11 +186,25 @@ export default {
       // console.log(id)
     },
     handleDelete(row, index) {
+      this.listLoading = true
       this.$message({
         message: '成功删掉一个房间',
         type: 'success'
       })
+      // console.log(row)
+      this.axios.post(this.deleteOneUrl, JSON.stringify(row), { headers: this.$store.state.user.headers })
+        .then(
+          res => {
+            console.log('Delete success!!'); this.handleGet(); this.listLoading = false
+          }
+        )
+        .catch(err => { console.log(err) })
       row.status = '下线'
+      // this.listLoading = true
+      // this.getRoomList
+
+      // console.log('123')
+      // setTimeout(() => { this.$store.dispatch('room/getRoomList'); setTimeout(() => { this.listLoading = false }, 1000) }, 1000)
     }
   }
 }

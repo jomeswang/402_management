@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: '百姓渔村小程序后台管理',
 
   /**
    * @type {boolean} true | false

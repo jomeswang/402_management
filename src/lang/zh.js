@@ -77,7 +77,7 @@ export default {
     dashboard: '首页',
     github: '项目地址',
     logOut: '退出登录',
-    profile: '个人中心',
+    profile: '商家介绍',
     theme: '换肤',
     size: '布局大小'
   },
@@ -148,6 +148,7 @@ export default {
     credit_id: '身份证号码',
     order_name: '预定人姓名',
     order_room_num: '房间数',
+    order_room_type: '房间类型',
     order_phone_number: '手机号码',
     detail: '详情',
     cancle_order: '取消订单',
@@ -226,8 +227,8 @@ export default {
     confirm: '确认',
     cancel: '取消',
     discountCode: '发优惠码',
-    frequency_day: '发放频率之天数',
-    frequency_num: '发放频率之数量',
+    frequency_day: '发放方式',
+    frequency_num: '一次性发放数量',
     validTime: '一天内有效时间'
   },
   couponShow: {
@@ -250,6 +251,7 @@ export default {
     timeBegin: '有效期开始',
     timeEnd: '有效期结束',
     validTime: '有效时间',
-    couponNum: '拥有数量'
+    couponNum: '拥有数量',
+    moneySill: '金额门槛'
   }
 }

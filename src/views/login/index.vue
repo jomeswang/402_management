@@ -4,7 +4,7 @@
 
       <div class="title-container">
         <h3 class="title">
-          {{ $t('login.title') }}
+          百姓渔村小程序后台管理
         </h3>
         <lang-select class="set-language" />
       </div>
@@ -21,6 +21,7 @@
           type="text"
           tabindex="1"
           autocomplete="on"
+          class="inputForm"
         />
       </el-form-item>
 
@@ -31,8 +32,10 @@
           </span>
           <el-input
             :key="passwordType"
+
             ref="password"
             v-model="loginForm.password"
+            class="inputForm"
             :type="passwordType"
             :placeholder="$t('login.password')"
             name="password"
@@ -51,22 +54,47 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">
         {{ $t('login.logIn') }}
       </el-button>
-
+      <!--
       <div style="position:relative">
         <div class="tips">
           <span>{{ $t('login.username') }} : admin</span>
-          <span>{{ $t('login.password') }} : {{ $t('login.any') }}</span>
         </div>
         <div class="tips">
           <span style="margin-right:18px;">
             {{ $t('login.username') }} : editor
           </span>
-          <span>{{ $t('login.password') }} : {{ $t('login.any') }}</span>
         </div>
-
-      </div>
+      </div> -->
+      <el-link type="primary" @click="dialogVisible=true">修改密码</el-link>
     </el-form>
 
+    <el-dialog
+      title="修改密码"
+      :visible.sync="dialogVisible"
+      width="30%"
+      @close="cancelEdit"
+    >
+      <el-form ref="form" :model="editPassword" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="editPassword.username" />
+
+        </el-form-item>
+        <el-form-item label="原始密码">
+          <el-input v-model="editPassword.password" :type="passwordType1?'':'password'" placeholder="请输入密码">
+            <i slot="suffix" :class="passwordType1?'el-icon-minus':'el-icon-view'" style="margin-top:8px;font-size:18px;" autocomplete="auto" @click="passwordType1=!passwordType1" />
+          </el-input>
+        </el-form-item>
+        <el-form-item label="修改密码">
+          <el-input v-model="editPassword.password2" :type="passwordType2?'':'password'" placeholder="请输入密码">
+            <i slot="suffix" :class="passwordType2?'el-icon-minus':'el-icon-view'" style="margin-top:8px;font-size:18px;" autocomplete="auto" @click="passwordType2=!passwordType2" />
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelEdit">取 消</el-button>
+        <el-button :loading="editLoading" type="primary" @click="edit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -93,6 +121,14 @@ export default {
       }
     }
     return {
+      flag: false,
+      dialogVisible: false,
+      editLoading: false,
+      editPassword: {
+        username: '',
+        password: '',
+        password2: ''
+      },
       loginForm: {
         username: 'admin',
         password: '111111'
@@ -102,6 +138,8 @@ export default {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: 'password',
+      passwordType1: false,
+      passwordType2: false,
       capsTooltip: false,
       loading: false,
       showDialog: false,
@@ -120,9 +158,12 @@ export default {
       },
       immediate: true
     }
+
   },
+
   created() {
     // window.addEventListener('storage', this.afterQRScan)
+    // console.log(this.redirect)
   },
   mounted() {
     if (this.loginForm.username === '') {
@@ -153,27 +194,83 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
+              // console.log(this.redirect, this.otherQuery)
+
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })
             .catch(() => {
               this.loading = false
+              this.$message({
+                showClose: true,
+                message: '密码不正确',
+                type: 'error'
+              })
             })
         } else {
-          console.log('error submit!!')
+          this.$message({
+            showClose: true,
+            message: '请输入符合规则的账号和密码',
+            type: 'warning'
+          })
           return false
         }
       })
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
+        // console.log('132', cur, acc)
         if (cur !== 'redirect') {
           acc[cur] = query[cur]
         }
         return acc
       }, {})
+    },
+    edit() {
+      const signupUrl = 'http://159.138.27.178:3000/api/user/signup'
+      this.editLoading = true
+
+      this.axios.post(signupUrl, this.editPassword)
+        .then(res => {
+          if (res.data === '密码不正确') {
+            this.$message({
+              showClose: true,
+              message: '错了哦，密码不正确',
+              type: 'error'
+            })
+          } else if (res.data === '用户不存在') {
+            this.$message({
+              showClose: true,
+              message: '错了哦，用户不存在',
+              type: 'error'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: '密码修改成功',
+              type: 'success'
+            })
+            this.dialogVisible = false
+            Object.keys(this.editPassword).forEach(key => {
+              this.editPassword[key] = ''
+            })
+          }
+          // console.log(res)
+
+          this.editLoading = false
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    cancelEdit() {
+      this.dialogVisible = false
+      Object.keys(this.editPassword).forEach(key => {
+        this.editPassword[key] = ''
+      })
     }
     // afterQRScan() {
     //   if (e.key === 'x-admin-oauth-code') {
@@ -206,14 +303,14 @@ $light_gray:#fff;
 $cursor: #fff;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
-  .login-container .el-input input {
+  .login-container .inputForm input {
     color: $cursor;
   }
 }
 
 /* reset element-ui css */
 .login-container {
-  .el-input {
+  .inputForm {
     display: inline-block;
     height: 47px;
     width: 85%;

@@ -17,7 +17,7 @@
         {{ $t('table.export') }}
       </el-button>
       <el-checkbox v-model="showCreditId" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey>100?0:tableKey+1">
-        {{ $t('table.credit_id') }}
+        订单交易时间
       </el-checkbox>
     </div>
 
@@ -33,9 +33,14 @@
       <el-table-column :label="$t('table.order_id')" prop="order_id" sortable align="center" width="120px">
 
         <template slot-scope="{row}">
-          <span class="link-type" @click="showDetail(row.order_id)">{{ row.order_id }}</span>
+          <span class="link-type" @click="showDetail(row, row.order_id)">{{ row.order_id }}</span>
         </template>
 
+      </el-table-column>
+      <el-table-column v-if="showCreditId" label="交易时间" min-width="150px">
+        <template slot-scope="{row}">
+          <span>{{ row.orderTime }}</span>
+        </template>
       </el-table-column>
       <el-table-column
         :sortable="true"
@@ -75,11 +80,7 @@
           <span>{{ row.reachTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="showCreditId" :label="$t('table.credit_id')" min-width="150px">
-        <template slot-scope="{row}">
-          <span>{{ row.credit_id }}</span>
-        </template>
-      </el-table-column>
+
       <el-table-column :label="$t('table.order_name')" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.order_name }}</span>
@@ -95,6 +96,11 @@
           <span style="color:red;">{{ row.reviewer }}</span>
         </template>
       </el-table-column> -->
+      <el-table-column :label="$t('table.order_room_type')" align="center" width="95">
+        <template slot-scope="{row}">
+          <span>{{ row.order_room_type }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$t('table.order_room_num')" align="center" width="95">
         <template slot-scope="{row}">
           <span>{{ row.order_room_num }}</span>
@@ -119,16 +125,16 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" width="330" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="success" size="mini" @click="handleEdit(row, $index)">
+          <el-button v-if="row.status==='待确认'?false:row.status==='已取消'?false:true" type="success" size="mini" @click="handleEdit(row, $index)">
             {{ $t('table.editRoom') }}
           </el-button>
-          <el-button type="primary" size="mini" @click="handleConfirm(row, $index)">
+          <el-button v-if="row.status==='待确认'?true:false" type="primary" size="mini" @click="handleConfirm(row, $index)">
             {{ $t('table.confirmOrder') }}
           </el-button>
-          <el-button type="danger" size="mini" @click="handleCancel(row, $index)">
+          <el-button v-if="row.status==='待确认'?true:false" type="danger" size="mini" @click="handleCancel(row, $index)">
             {{ $t('table.cancelOrder') }}
           </el-button>
-          <el-button size="mini" @click="showDetail(row.order_id)">
+          <el-button size="mini" @click="showDetail(row, row.order_id)">
             {{ $t('table.detail') }}
           </el-button>
 
@@ -136,14 +142,12 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" />
+    <!-- <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" /> -->
 
-    <el-dialog :visible.sync="dialogDetailVisible" title="订单详情">
-      <el-table :data="order_detail" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="name" label="姓名" />
-        <el-table-column prop="credit_id" label="身份证号码" />
-        <el-table-column prop="phone_number" label="手机号码" />
-      </el-table>
+    <el-dialog :visible.sync="dialogDetailVisible" title="订单人身份证照片">
+      <div class="creditImg">
+        <img v-for="item in creditUrl" :key="item" :src="item" alt="身份证Id">
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogDetailVisible = false">{{ $t('table.confirm') }}</el-button>
       </span>
@@ -198,7 +202,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+// import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarTypeOptions = [
   { key: '待入住', display_name: '待入住' },
@@ -216,7 +220,7 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 
 export default {
   name: 'OrderManagement',
-  components: { Pagination },
+  // components: { Pagination },
   directives: { waves },
   filters: {
     formatPrice(value) {
@@ -238,6 +242,10 @@ export default {
   },
   data() {
     return {
+      postUrl: 'http://159.138.27.178:3000/api/order/update',
+      findUrl: 'http://159.138.27.178:3000/api/order/',
+      listLoading: false,
+      detailIndex: '',
       showPrice: false,
       showDeposit: false,
       roomStatus: '',
@@ -254,20 +262,32 @@ export default {
       showCancel: false,
       tableKey: 0,
       list: [
-        { order_id: '13213', order_begin_time: '2019-02-01', order_end_time: '2019-02-02', credit_id: '1321313', order_name: 'llw', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:30' },
-        { order_id: '1321', order_begin_time: '2019-02-02', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '123', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:32' },
-        { order_id: '132', order_begin_time: '2019-02-03', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '456', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:36' },
-        { order_id: '132', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:35' },
-        { order_id: '13', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:42' }
+        // { order_id: '13213',
+        //   order_begin_time: '2019-02-01',
+        //   order_end_time: '2019-02-02',
+        //   credit_id: '1321313',
+        //   order_name: 'llw',
+        //   order_phone_number: '1231233121',
+        //   order_room_type: '超级大房',
+        //   order_room_num: '123',
+        //   status: '已入住',
+        //   last_time: '一晚',
+        //   price: '23',
+        //   deposit: '12',
+        //   reachTime: '06:30',
+        //   creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // // { order_id: '1321', order_begin_time: '2019-02-02', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '123', order_phone_number: '1231233121', order_room_type: '豪华大房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:32', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // // { order_id: '132', order_begin_time: '2019-02-03', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '456', order_phone_number: '1231233121', order_room_type: '大房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:36', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '132', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_type: '超级小房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:35', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '13', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_type: '小房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:42', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] }
       ],
       total: 0,
-      listLoading: false,
       listQuery: {
         page: 1,
         limit: 20,
         order_id: '',
         type: '',
-        sort: '+id',
+        sort: '-id',
         order_name: ''
       },
       calendarTypeOptions,
@@ -275,17 +295,15 @@ export default {
       statusOptions: ['已入住', '已完成'],
       showReviewer: false,
       dialogStatus: '',
-      order_detail: [
-        { name: '132', credit_id: 132131, phone_number: '12313' }
-      ],
+      creditUrl: [],
       downloadLoading: false,
       dialogDetailVisible: false,
       listCopy: [
-        { order_id: '13213', order_begin_time: '2019-02-01', order_end_time: '2019-02-02', credit_id: '1321313', order_name: 'llw', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:30' },
-        { order_id: '1321', order_begin_time: '2019-02-02', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '123', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:32' },
-        { order_id: '132', order_begin_time: '2019-02-03', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '456', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:36' },
-        { order_id: '132', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:35' },
-        { order_id: '13', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:42' }
+        // { order_id: '13213', order_begin_time: '2019-02-01', order_end_time: '2019-02-02', credit_id: '1321313', order_name: 'llw', order_phone_number: '1231233121', order_room_type: '超级大房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:30', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '1321', order_begin_time: '2019-02-02', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '123', order_phone_number: '1231233121', order_room_type: '豪华大房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:32', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '132', order_begin_time: '2019-02-03', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '456', order_phone_number: '1231233121', order_room_type: '大房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:36', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '132', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_type: '超级小房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:35', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] },
+        // { order_id: '13', order_begin_time: '2019-02-04', order_end_time: '2019-02-02', credit_id: '1321313', order_name: '789', order_phone_number: '1231233121', order_room_type: '小房', order_room_num: '123', status: '已入住', last_time: '一晚', price: '23', deposit: '12', reachTime: '06:42', creditUrl: ['https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3539210107,4231520605&fm=26&gp=0.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1598163002792&di=e5d3f6c71a5d1ae16b27339f8dd5ad34&imgtype=0&src=http%3A%2F%2Fd.hiphotos.baidu.com%2Fzhidao%2Fpic%2Fitem%2F6159252dd42a2834d7a36c905ab5c9ea15cebf20.jpg'] }
       ] }
   },
   watch: {
@@ -300,23 +318,32 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
+    this.getList()
+      .then(() => {
+        this.handleSortId()
+        // console.log(this.list)
+      })
+    //  编辑状态需要同步数据库
+  },
+  activated() {
     // 在这里同步数据 检索记录为 total为list的总数
     //  为listCopy 和 list 赋值
-
-    //  编辑状态需要同步数据库
-
-    this.handleSortId()
+    this.getList()
+      .then(() => {
+        this.handleSortId()
+        // console.log(this.list)
+      })
   },
   methods: {
     sortByDate(obj1, obj2) {
-      console.log(obj1)
+      // console.log(obj1)
       const val1 = obj1.order_begin_time
       const val2 = obj2.order_begin_time
       return val1 - val2
     },
     sortByDate2(obj1, obj2) {
-      console.log(obj1)
+      // console.log(obj1)
       const val1 = obj1.order_end_time
       const val2 = obj2.order_end_time
       return val1 - val2
@@ -333,8 +360,8 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['订单编号', '入住时间', '退房时间', '入住时长', '预计到达时间', '预定人姓名', '手机号码', '身份证号码', '房间数', '总金额', '押金', '状态']
-        const filterVal = ['order_id', 'order_begin_time', 'order_end_time', 'last_time', 'reachTime', 'order_name', 'order_phone_number', 'credit_id', 'order_room_num', 'price', 'deposit', 'status']
+        const tHeader = ['订单编号', '入住时间', '退房时间', '入住时长', '预计到达时间', '预定人姓名', '手机号码', '交易时间', '房间类型', '房间数', '总金额', '押金', '状态']
+        const filterVal = ['order_id', 'order_begin_time', 'order_end_time', 'last_time', 'reachTime', 'order_name', 'order_phone_number', 'orderTime', 'order_room_type', 'order_room_num', 'price', 'deposit', 'status']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,
@@ -353,15 +380,20 @@ export default {
         }
       }))
     },
-    showDetail(order_id) {
+    showDetail(row, order_id) {
       // console.log(order_id)
       this.dialogDetailVisible = true
       //  我需要根据传进来的订单编号去查找订单的详情
+      this.detailIndex = order_id
+      this.creditUrl = row.creditUrl
     },
-    handleSortId(value = '+id') {
+
+    handleSortId(value = '-id') {
       //  +id  表示升序
       if (value === '+id') {
         this.list.sort((a, b) => {
+          // return b['order_id'] - a['order_id']
+
           return a['order_id'] - b['order_id']
         })
       } else {
@@ -372,63 +404,68 @@ export default {
     },
     handleFilter(value) {
       // console.log('123')
-      if (this.listQuery.order_name !== '' && this.listQuery.order_id !== '' && typeof (this.listQuery.order_id) !== undefined) {
-        const arr1 = []
-        this.listCopy.forEach(item => {
-          if (item.order_name.indexOf(this.listQuery.order_name) !== -1) { arr1.push(item) }
+      this.getListCopy()
+        .then(() => {
+          // console.log(this.listQuery)
+          if (this.listQuery.order_name !== '' && this.listQuery.order_id !== '' && typeof (this.listQuery.order_id) !== undefined) {
+            const arr1 = []
+            this.listCopy.forEach(item => {
+              if (item.order_name.indexOf(this.listQuery.order_name) !== -1) { arr1.push(item) }
+            })
+            const arr2 = []
+            arr1.forEach(item => {
+              if (item.order_id.indexOf(this.listQuery.order_id) !== -1) { arr2.push(item) }
+            })
+            if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
+              this.list = arr2.filter(item => {
+                // console.log(item)
+                // console.log()
+                return item.status === this.listQuery.type
+              })
+            } else {
+              this.list = arr2
+              // console.log(arr1)
+            }
+          } else if (this.listQuery.order_name !== '' && this.listQuery.order_id === '' && typeof (this.listQuery.order_id) !== undefined) {
+            const arr1 = []
+            this.listCopy.forEach(item => {
+              if (item.order_name.indexOf(this.listQuery.order_name) !== -1) { arr1.push(item) }
+            })
+            if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
+              this.list = arr1.filter(item => {
+                // console.log(item)
+                // console.log()
+                return item.status === this.listQuery.type
+              })
+            } else {
+              this.list = arr1
+              // console.log(arr1)
+            }
+          } else if (this.listQuery.order_name === '' && this.listQuery.order_id !== '' && typeof (this.listQuery.order_id) !== undefined) {
+            const arr1 = []
+            this.listCopy.forEach(item => {
+              if (item.order_id.indexOf(this.listQuery.order_id) !== -1) { arr1.push(item) }
+            })
+            if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
+              this.list = arr1.filter(item => {
+                // console.log(item)
+                // console.log()
+                return item.status === this.listQuery.type
+              })
+            } else {
+              this.list = arr1
+              // console.log(arr1)
+            }
+          } else if (this.listQuery.order_name === '' && this.listQuery.order_id === '' && this.listQuery.type !== '') {
+            const arr = this.listCopy.filter(item => {
+              return item.status === this.listQuery.type
+            })
+            this.list = arr
+          } else {
+            this.list = this.listCopy
+          }
+          this.handleSortId()
         })
-        const arr2 = []
-        arr1.forEach(item => {
-          if (item.order_id.indexOf(this.listQuery.order_id) !== -1) { arr2.push(item) }
-        })
-        if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
-          this.list = arr2.filter(item => {
-          // console.log(item)
-          // console.log()
-            return item.status === this.listQuery.type
-          })
-        } else {
-          this.list = arr2
-          // console.log(arr1)
-        }
-      } else if (this.listQuery.order_name !== '' && this.listQuery.order_id === '' && typeof (this.listQuery.order_id) !== undefined) {
-        const arr1 = []
-        this.listCopy.forEach(item => {
-          if (item.order_name.indexOf(this.listQuery.order_name) !== -1) { arr1.push(item) }
-        })
-        if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
-          this.list = arr1.filter(item => {
-          // console.log(item)
-          // console.log()
-            return item.status === this.listQuery.type
-          })
-        } else {
-          this.list = arr1
-          // console.log(arr1)
-        }
-      } else if (this.listQuery.order_name === '' && this.listQuery.order_id !== '' && typeof (this.listQuery.order_id) !== undefined) {
-        const arr1 = []
-        this.listCopy.forEach(item => {
-          if (item.order_id.indexOf(this.listQuery.order_id) !== -1) { arr1.push(item) }
-        })
-        if (this.listQuery.type !== '' && typeof (this.listQuery.type) !== undefined) {
-          this.list = arr1.filter(item => {
-          // console.log(item)
-          // console.log()
-            return item.status === this.listQuery.type
-          })
-        } else {
-          this.list = arr1
-          // console.log(arr1)
-        }
-      } else if (this.listQuery.order_name === '' && this.listQuery.order_id === '' && this.listQuery.type !== '') {
-        const arr = this.listCopy.filter(item => {
-          return item.status === this.listQuery.type
-        })
-        this.list = arr
-      } else {
-        this.list = this.listCopy
-      }
     },
 
     cancelCancel() {
@@ -437,15 +474,18 @@ export default {
       this.cancelId = ''
     },
 
+    //  确认取消订单
     confirmCancel() {
       this.showCancel = false
-      const index = this.list.findIndex(item => item.order_id === this.cancelId)
-      this.list[index].status = '已取消'
       this.cancelPrice = ''
+      const index = this.list.findIndex(item => item.order_id === this.cancelId)
+
+      this.list[index].status = '已取消'
+      this.postStatus(this.list[index])
 
       //  同步 cancelPrice
     },
-    //  取消订单
+    //  取消订单  打开取消订单弹窗 输入退款金额
     handleCancel(row, index) {
       if (row.status === '已取消') {
         this.$message({
@@ -461,26 +501,57 @@ export default {
     },
     //  确认订单
     handleConfirm(row, index) {
-      row.status = '待入住'
+      this.$confirm('点击确定表示确认订单', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success'
+      }).then(() => {
+        row.status = '待入住'
+        this.postStatus(row)
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: '订单确认成功'
+            })
+          })
+      }).catch(() => {
+        // this.$message({
+        //   type: 'info',
+        //   message: '已取消删除'
+        // });
+      })
     },
-    // 房间操作
+
+    // 订单操作
     handleEdit(row) {
       this.showHandleRoom = true
-      this.roomStatus = row.status
+      // this.roomStatus = row.status
       this.handleRoomStatus.price = row.price
       // this.handleRoomStatus.deposit = row.deposit
       this.handleRoomStatus.status = row.status
       this.handleRoomStatus.id = row.order_id
     },
+    //  确认对订单 进行已入住和已完成的操作
     submitStatusForm() {
-      //  可能是请求接口然后改值
-      // eslint-disable-next-line eqeqeq
+    //  可能是请求接口然后改值
+    // eslint-disable-next-line eqeqeq
+      if (this.roomStatus === '') {
+        this.$message({
+          message: '请选择订单状态',
+          type: 'warning'
+        })
+        return 0
+      }
       const index = this.list.findIndex(item => item.order_id === this.handleRoomStatus.id)
-      console.log(index)
+      // console.log(index)
       this.list[index].status = this.roomStatus
       if (this.roomStatus === '已取消') {
         this.list[index].price = this.handleRoomStatus.price
       }
+      this.postStatus(this.list[index]).then(() => {
+
+      })
+
       this.cancelStatusForm()
     },
     cancelStatusForm() {
@@ -489,6 +560,103 @@ export default {
       // this.showDeposit = false
       Object.keys(this.handleRoomStatus).forEach(key => { this.handleRoomStatus[key] = '' })
       this.roomStatus = ''
+    },
+    getList() {
+      return new Promise((resolve, reject) => {
+        this.listLoading = true
+        this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+          .then((res) => {
+          // console.log('123')
+            this.list.length = 0
+
+            res.data.forEach((item) => {
+              const obj = JSON.parse(item)
+              const obj1 = {}
+              obj1.order_id = String(obj.counters)
+              obj1.order_begin_time = obj.order_begin_time
+              obj1.order_end_time = obj.order_end_time
+              // obj1.credit_id = obj.id
+              obj1.order_name = obj.form.order_name
+              obj1.order_phone_number = obj.form.order_phone_number
+              obj1.order_room_type = obj.order_room_type
+              obj1.order_room_num = obj.form.order_room_num
+              obj1.status = obj.status
+              obj1.last_time = obj.id
+              obj1.price = obj.price
+              obj1.deposit = obj.deposit
+              obj1.reachTime = obj.reachTime
+              obj1.creditUrl = obj.pic_List
+              obj1.orderTime = obj.currentTime
+              this.list.push(obj1)
+            })
+            // console.log(this.list)
+            this.listLoading = false
+            resolve(res)
+          })
+          .catch((err) => {
+            reject(err)
+          })
+      })
+    },
+    getListCopy() {
+      return new Promise((resolve, reject) => {
+        this.listLoading = true
+        this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+          .then((res) => {
+            this.listCopy.length = 0
+
+            // console.log(JSON.parse(res.data[0]))
+            res.data.forEach((item) => {
+              const obj = JSON.parse(item)
+              const obj1 = {}
+              obj1.order_id = String(obj.counters)
+              obj1.order_begin_time = obj.order_begin_time
+              obj1.order_end_time = obj.order_end_time
+              // obj1.credit_id = obj.id
+              obj1.order_name = obj.form.order_name
+              obj1.order_phone_number = obj.form.order_phone_number
+              obj1.order_room_type = obj.order_room_type
+              obj1.order_room_num = obj.form.order_room_num
+              obj1.status = obj.status
+              obj1.last_time = obj.id
+              obj1.price = obj.price
+              obj1.deposit = obj.deposit
+              obj1.reachTime = obj.reachTime
+              obj1.creditUrl = obj.pic_List
+              obj1.orderTime = obj.currentTime
+
+              this.listCopy.push(obj1)
+            })
+            // console.log(this.list)
+            this.listLoading = false
+            resolve(res)
+          })
+          .catch((err) => {
+            reject(err)
+          })
+      })
+    },
+    postStatus(obj) {
+    // const obj1 = JSON.parse(JSON.stringify(obj1))
+      return new Promise((resolve, reject) => {
+        this.listLoading = true
+
+        if (obj.status === '已取消') {
+          obj.own = 0
+        }
+        this.axios.post(this.postUrl, obj, { headers: this.$store.state.user.headers })
+          .then(res => {
+            console.log('订单状态修改成功')
+            this.getList().then(() => {
+              this.handleSortId()
+              // console.log(this.list)
+            })
+            // console.log('789')
+            this.listLoading = false
+            resolve(res)
+          })
+          .catch(err => console.log(err))
+      })
     }
   }
 }

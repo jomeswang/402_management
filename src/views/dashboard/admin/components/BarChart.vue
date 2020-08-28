@@ -23,15 +23,35 @@ export default {
     height: {
       type: String,
       default: '400px'
+    },
+    dailyMoney: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      chart: null,
-      daily_money: [79, 52, 200, 334, 390, 330, 220]
+      chart: null
     }
   },
+  watch: {
+    dailyMoney: {
+      deep: true,
+      handler(val) {
+        this.setOptions(val)
+      }
+    }
+  },
+
   mounted() {
+    this.$nextTick(() => {
+      this.initChart()
+    })
+    // console.log(this.daily_money)
+    // console.log('this.earnings')
+  },
+
+  activated() {
     this.$nextTick(() => {
       this.initChart()
     })
@@ -45,6 +65,7 @@ export default {
   },
   methods: {
     initChart() {
+      // console.log(this.dailyMoney)
       this.chart = echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
@@ -63,7 +84,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+          data: this.dailyMoney.orderTime,
           axisTick: {
             alignWithLabel: true
           }
@@ -75,11 +96,50 @@ export default {
           }
         }],
         series: [{
-          name: '日收益',
+          name: '日成交额',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: this.daily_money,
+          data: this.dailyMoney.price,
+          animationDuration
+        }]
+      })
+    },
+    setOptions() {
+      // console.log(this.dailyMoney)
+      this.chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
+        },
+        grid: {
+          top: 10,
+          left: '2%',
+          right: '2%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: [{
+          type: 'category',
+          data: this.dailyMoney.orderTime,
+          axisTick: {
+            alignWithLabel: true
+          }
+        }],
+        yAxis: [{
+          type: 'value',
+          axisTick: {
+            show: false
+          }
+        }],
+        series: [{
+          name: '日成交额',
+          type: 'bar',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: this.dailyMoney.price,
           animationDuration
         }]
       })

@@ -61,10 +61,10 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ roomData, orderData } = {}) {
+    setOptions({ roomData, orderData, dayData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+          data: dayData,
           boundaryGap: false,
           axisTick: {
             show: false

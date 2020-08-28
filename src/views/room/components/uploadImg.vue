@@ -1,23 +1,23 @@
 <template>
   <div>
-
+    <!-- :class="{ disabled: uploadDisabled }" -->
     <el-upload
-      action=""
+      action="http://159.138.27.178:3000/api/room/pic"
+      :headers="headers"
       list-type="picture-card"
-      :class="{ disabled: uploadDisabled }"
-      :limit="1"
       :on-success="handleAvatarSuccess"
-      :on-change="handleChange"
-      :on-remove="handleRemove"
       :before-upload="beforeAvatarUpload"
-      accept="image/jpeg,image/jpg,image/png,image/bmp"
+      :file-list="fileList"
+      :limit="4"
+      :on-exceed="outLimit"
+      accept="image/jpeg,image/jpg,image/png"
     >
       <i slot="default" class="el-icon-plus" />
       <div slot="file" slot-scope="{file}">
         <img
           class="el-upload-list__item-thumbnail"
           :src="file.url"
-          alt=""
+          :alt="file.name"
         >
         <span class="el-upload-list__item-actions">
           <span
@@ -26,13 +26,7 @@
           >
             <i class="el-icon-zoom-in" />
           </span>
-          <span
-            v-if="!disabled"
-            class="el-upload-list__item-delete"
-            @click="handleDownload(file)"
-          >
-            <i class="el-icon-download" />
-          </span>
+
           <span
             v-if="!disabled"
             class="el-upload-list__item-delete"
@@ -50,6 +44,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   data() {
     return {
@@ -59,44 +55,63 @@ export default {
       disabled: false
     }
   },
+  computed: {
+    ...mapState({
+      fileList: state => state.room.imgUrl,
+      headers: state => state.user.headers
+    })
+
+  },
   methods: {
-    handleChange(file, fileList) {
-      if (fileList.length >= 1) {
-        this.uploadDisabled = true
-      }
-    },
     handleAvatarSuccess(response) {
+      //  处理上传成功回调
       window.console.log(response)
-    },
-    handleRemove(file) {
-      // imgDelete.post({pic_name : file.response.pic_name}).then();
-      this.uploadDisabled = false
+      const obj = { name: response.name, url: response.path.replace('tmp\\', 'http://baixingpt.jomeswang.top/') }
+      // console.log(obj)
+      // const obj = { name: response.name, url: response.path }
+      this.$store.dispatch('room/updateImg', obj)
+      // this.closeLoading()
+      this.$store.dispatch('room/closeLoading')
+      this.$message({
+        message: '成功上传一张照片',
+        type: 'success'
+      })
     },
     beforeAvatarUpload(file) {
+      console.log(this.$store.state.user)
+      //  检查 图片类型和大小
       const isJPG = file.type === 'image/jpeg'
       const isPNG = file.type === 'image/png'
-      const isBMP = file.type === 'image/bmp'
       const isLt2M = file.size / 1024 / 1024 < 2
 
-      if (!isJPG && !isPNG && !isBMP) {
-        this.common.errorTip('上传图片必须是JPG/PNG/BMP 格式!')
+      if (!isJPG && !isPNG) {
+        this.$message.error('上传图片必须是JPG/PNG 格式!')
       }
       if (!isLt2M) {
-        this.common.errorTip('上传图片大小不能超过 2MB!')
+        this.$message.error('上传图片大小不能超过 2MB!')
       }
-      return (isJPG || isBMP || isPNG) && isLt2M
+      // console.log(isJPG, isPNG, isLt2M)
+      if ((isJPG || isPNG) && isLt2M) {
+        // console.log('123')
+        this.$store.dispatch('room/openLoading')
+      }
+      return (isJPG || isPNG) && isLt2M
     },
     handleRemove2(file) {
-      console.log(file)
+      // console.log(file)
+      // 删除靠name
+      const index = this.fileList.findIndex(item => item.name === file.name)
+      this.$store.dispatch('room/deleteImg', index)
       this.uploadDisabled = false
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
-    handleDownload(file) {
-      console.log(file)
+    outLimit() {
+      this.$message.error('最多上传四张图片')
     }
+
   }
 }
 </script>

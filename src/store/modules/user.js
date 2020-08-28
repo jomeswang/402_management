@@ -1,5 +1,5 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+// import { login, logout, getInfo } from '@/api/user'
+import { getToken, setToken, removeToken, getAccessToken, setAccessToken, removeAccessToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 import axios from 'axios'
 
@@ -8,7 +8,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  headers: getAccessToken()
 }
 
 const mutations = {
@@ -26,75 +27,113 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_HEADERS: (state, headers) => {
+    state.headers = headers
+  }
+}
+const tokens = {
+  admin: {
+    token: 'admin-token'
+  },
+  editor: {
+    token: 'editor-token'
   }
 }
 
+const users = {
+  'admin-token': {
+    roles: ['admin'],
+    introduction: 'I am a super administrator',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: 'Super Admin'
+  },
+  'editor-token': {
+    roles: ['editor'],
+    introduction: 'I am an editor',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: 'Normal Editor'
+  }
+}
 const actions = {
   // user login
+  // this.users[]
   login({ commit }, userInfo) {
     const { username, password } = userInfo
-
-    axios.post('http://159.138.27.178:3000/api/user/login', { username: username.trim(), password: password })
-      .then(res => console.log(res))
-      .catch(err => console.log(err))
+    // const setUrl = 'http://159.138.27.178:3000/api/user/set'
+    const loginUrl = 'http://159.138.27.178:3000/api/user/login'
+    // const signupUrl = 'http://159.138.27.178:3000/api/user/signup'
+    // axios.post(loginUrl, { username: username.trim(), password: password })
+    // axios.post(setUrl, { username: username.trim(), password: password })
+    //   .then(res => console.log(res))
+    //   .catch(err => console.log(err))
 
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      // login({ username: username.trim(), password: password }).then(response => {
+      //   const { data } = response
+      //   commit('SET_TOKEN', data.token)
+      //   setToken(data.token)
+      //   resolve()
+      // }).catch(error => {
+      //   reject(error)
+      // })
+      axios.post(loginUrl, { username: username.trim(), password: password })
+        .then(res => {
+          // console.log(res.headers)
+          const headers = { 'Content-Type': res.headers['content-type'], 'X-Access-Token': res.headers['x-access-token'] }
+          commit('SET_HEADERS', headers)
+          setAccessToken(headers)
+          const data = tokens[res.data.username]
+          commit('SET_TOKEN', data.token)
+          setToken(data.token)
+          resolve()
+        })
+        .catch(err => { reject(err) })
     })
   },
 
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
+      // getInfo(state.token).then(response => {
+      const data = users[state.token]
+      // console.log(data)
+      if (!data) {
+        reject('Verification failed, please Login again.')
+      }
 
-        if (!data) {
-          reject('Verification failed, please Login again.')
-        }
+      const { roles, name, avatar, introduction } = data
 
-        const { roles, name, avatar, introduction } = data
+      // roles must be a non-empty array
+      if (!roles || roles.length <= 0) {
+        reject('getInfo: roles must be a non-null array!')
+      }
 
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
+      commit('SET_ROLES', roles)
+      commit('SET_NAME', name)
+      commit('SET_AVATAR', avatar)
+      commit('SET_INTRODUCTION', introduction)
+      resolve(data)
+      // }).catch(error => {
+      //   reject(error)
+      // })
     })
   },
 
   // user logout
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        commit('SET_TOKEN', '')
-        commit('SET_ROLES', [])
-        removeToken()
-        resetRouter()
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      removeAccessToken()
+      removeToken()
+      resetRouter()
 
-        // reset visited views and cached views
-        // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
-        dispatch('tagsView/delAllViews', null, { root: true })
+      // reset visited views and cached views
+      // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
+      dispatch('tagsView/delAllViews', null, { root: true })
 
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      resolve()
     })
   },
 

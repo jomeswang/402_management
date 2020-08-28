@@ -1,9 +1,10 @@
 <template>
-  <div class="dashboard-editor-container">
+
+  <div v-loading="loading" class="dashboard-editor-container">
     <!-- <github-corner class="github-corner" /> -->
 
     <!-- 首页的四个汇总数据  -->
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <panel-group />
 
     <!-- 一个描点图表形式的来展示数据情况 -->
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
@@ -17,7 +18,7 @@
 
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         <div class="chart-wrapper">
-          <bar-chart />
+          <bar-chart :daily-money="dailyMoney" />
         </div>
       </el-col>    </el-row>
 
@@ -30,24 +31,8 @@ import LineChart from './components/LineChart'
 import BarChart from './components/BarChart'
 import TransactionTable from './components/TransactionTable'
 
-const lineChartData = {
-  order: {
-    roomData: [200, 192, 120, 144, 160, 130, 140],
-    orderData: [120, 82, 91, 154, 162, 140, 145]
-  },
-  user: {
-    roomData: [200, 192, 120, 144, 160, 130, 140],
-    orderData: [180, 160, 151, 106, 145, 150, 130]
-  },
-  money: {
-    roomData: [80, 100, 121, 104, 105, 90, 100],
-    orderData: [120, 90, 100, 138, 142, 130, 130]
-  },
-  rooms: {
-    roomData: [130, 140, 141, 142, 145, 150, 160],
-    orderData: [120, 82, 91, 154, 162, 140, 130]
-  }
-}
+// const order =
+import { mapState } from 'vuex'
 
 export default {
   name: 'DashboardAdmin',
@@ -61,12 +46,115 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.order
+      loading: false,
+      lineChartData: {
+        roomData: [],
+        orderData: [],
+        dayData: []
+      },
+      dailyMoney: {
+        orderTime: [],
+        price: []
+      }
     }
   },
+  computed: {
+    ...mapState({
+      list: state => state.order.orderRoomDetail,
+      earnings: state => state.order.earnings
+
+    })
+  },
+  mounted() {
+    this.loading = true
+    this.$store.dispatch('order/getList')
+      .then(() => {
+        this.filterData()
+        let max = 0
+        this.initOrder()
+        this.list.forEach((item) => {
+          if (max - item.id < 0) {
+            max = Number(item.id)
+          }
+        })
+        for (let i = max; i >= 0; i--) {
+          let orderNum = 0
+          let roomNum = 0
+          let orderTime = ''
+          this.list.forEach((item) => {
+            if (i - item.id === 0) {
+              orderNum += 1
+              roomNum += Number(item.roomNum)
+              orderTime = item.orderTime
+            }
+          })
+          this.lineChartData.roomData.push(roomNum)
+          this.lineChartData.orderData.push(orderNum)
+          this.lineChartData.dayData.push(orderTime)
+        }
+        this.loading = false
+      })
+  },
+  activated() {
+    this.loading = true
+    this.$store.dispatch('order/getList')
+      .then(() => {
+        this.filterData()
+        let max = 0
+        this.initOrder()
+        this.list.forEach((item) => {
+          if (max - item.id < 0) {
+            max = Number(item.id)
+          }
+        })
+        for (let i = max; i >= 0; i--) {
+          let orderNum = 0
+          let roomNum = 0
+          let orderTime = ''
+          this.list.forEach((item) => {
+            if (i - item.id === 0) {
+              orderNum += 1
+              roomNum += Number(item.roomNum)
+              orderTime = item.orderTime
+            }
+          })
+          this.lineChartData.roomData.push(roomNum)
+          this.lineChartData.orderData.push(orderNum)
+          this.lineChartData.dayData.push(orderTime)
+        }
+        this.loading = false
+      })
+  },
   methods: {
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
+    initOrder() {
+      this.lineChartData.roomData.length = 0
+      this.lineChartData.orderData.length = 0
+      this.lineChartData.dayData.length = 0
+    },
+    filterData() {
+      this.dailyMoney.orderTime.length = 0
+      this.dailyMoney.price.length = 0
+      //  找 id 最大值
+      let max = 0
+      this.earnings.forEach((item) => {
+        if (max - item.id < 0) {
+          max = Number(item.id)
+        }
+      })
+      //  遍历找出符合条件的数据
+      for (let i = max; i >= 0; i--) {
+        let price = 0
+        let orderTime = ''
+        this.earnings.forEach((item) => {
+          if (i - item.id === 0) {
+            orderTime = item.orderTime
+            price += Number(item.money)
+          }
+        })
+        this.dailyMoney.orderTime.push(orderTime)
+        this.dailyMoney.price.push(price)
+      }
+      // console.log(this.dailyMoney)
     }
   }
 }

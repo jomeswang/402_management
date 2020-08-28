@@ -1,16 +1,26 @@
 <template>
   <el-table :data="list" style="width: 100%;padding-top: 15px;">
-    <el-table-column label="Order_No" min-width="200">
+    <el-table-column label="订单编号" min-width="100">
       <template slot-scope="scope">
-        {{ scope.row.order_no | orderNoFilter }}
+        {{ scope.row.order_id }}
       </template>
     </el-table-column>
-    <el-table-column label="Price" width="195" align="center">
+    <el-table-column label="交易时间" width="150" align="center">
+      <template slot-scope="scope">
+        {{ scope.row.orderTime }}
+      </template>
+    </el-table-column>
+    <el-table-column label="房间类型" width="150" align="center">
+      <template slot-scope="scope">
+        {{ scope.row.order_room_type }}
+      </template>
+    </el-table-column>
+    <el-table-column label="金额" width="100" align="center">
       <template slot-scope="scope">
         ¥{{ scope.row.price | toThousandFilter }}
       </template>
     </el-table-column>
-    <el-table-column label="Status" width="100" align="center">
+    <el-table-column label="状态" width="100" align="center">
       <template slot-scope="{row}">
         <el-tag :type="row.status | statusFilter">
           {{ row.status }}
@@ -21,14 +31,18 @@
 </template>
 
 <script>
-import { transactionList } from '@/api/remote-search'
+// import { transactionList } from '@/api/remote-search'
+import { mapState } from 'vuex'
 
 export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        success: 'success',
-        pending: 'danger'
+        待入住: 'info',
+        已入住: 'success',
+        待确认: 'warning',
+        已完成: '',
+        已取消: 'danger'
       }
       return statusMap[status]
     },
@@ -38,18 +52,24 @@ export default {
   },
   data() {
     return {
-      list: null
+      // list: null
     }
   },
-  created() {
-    this.fetchData()
+  computed: {
+    ...mapState({
+      list: state => state.order.unConfirmOrder
+    })
   },
+  created() {
+    // this.fetchData()
+  },
+
   methods: {
     fetchData() {
-      transactionList().then(response => {
-        this.list = response.data.items.slice(0, 8)
-        // console.log(this.list)
-      })
+      // transactionList().then(response => {
+      //   this.list = response.data.items.slice(0, 8)
+      //   // console.log(this.list)
+      // })
     }
   }
 }

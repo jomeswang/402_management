@@ -1,5 +1,5 @@
 <template>
-  <div class="room">
+  <div v-loading="loading" class="room">
 
     <el-row :gutter="5">
       <el-col :span="6">
@@ -150,13 +150,14 @@
     <div class="bottom">
       <el-button type="primary" @click="submitForm">{{ btnName }}</el-button>
       <el-button v-if="showReset" style="margin-left: 15vw" @click="resetForm">重置</el-button>
+      <el-button v-if="!showReset" style="margin-left: 15vw" @click="cancelForm">取消</el-button>
     </div>
     <!-- </el-form> -->
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 import uploadImg from '@/views/room/components/uploadImg'
 export default {
@@ -164,7 +165,6 @@ export default {
   components: { uploadImg },
   data() {
     return {
-      idPlus: 1,
       btnName: '立即创建',
       showReset: true,
       room: {
@@ -195,30 +195,75 @@ export default {
   },
   computed: {
     ...mapState({
-      roomList: state => state.room.roomList
-    })
+      findUrl: state => state.room.findUrl,
+      createUrl: state => state.room.createUrl,
+      fixUrl: state => state.room.fixUrl,
+      deleteUrl: state => state.room.deleteUrl,
+      roomList: state => state.room.roomList,
+      imgUrl: state => state.room.imgUrl,
+      idPlus: state => state.room.idPlus,
+      deleteOneUrl: state => state.room.deleteOneUrl,
+      loading: state => state.room.loading
+    }),
+    ...mapActions('room', [
+      'emptyImg',
+      'getRoomList',
+      'updateIdPlus'
+      // 'openLoading',
+      // 'closeLoading'
+    ])
   },
-  created() {
+  activated() {
+    // this.axios.post(this.deleteUrl).then(res => console.log(res))
+
+    //  更新 roomlist
+    this.getRoomList
+    // console.log(this.$route.params.id)
     // 进来检测是否传值  如果有值那么根据这一个Id去 查找值最后更新数据
-    // console.log(this.$route.params.id === undefined)
     if (this.$route.params.id !== undefined) {
+      //  进入这里意味着 是 编辑房间详情 操作
       // eslint-disable-next-line eqeqeq
       const index = this.roomList.findIndex(item => item.id == this.$route.params.id)
-      // console.log(index)
+      console.log(index)
       this.btnName = '编辑完成'
       this.showReset = false
+      //  接口查值
       this.room = { ...this.roomList[index] }
+      this.$store.dispatch('room/isShowImg', this.room.imgUrl)
     } else {
       this.showReset = true
-
+      this.$store.dispatch('room/emptyImg')
       this.btnName = '立即创建'
     }
 
     //  之后要做的一件事情是数据的post
   },
+  mounted() {
+    this.getRoomList
+    // console.log(this.$route.params.id)
+    // 进来检测是否传值  如果有值那么根据这一个Id去 查找值最后更新数据
+    if (this.$route.params.id !== undefined) {
+      //  进入这里意味着 是 编辑房间详情 操作
+      // eslint-disable-next-line eqeqeq
+      const index = this.roomList.findIndex(item => item.id == this.$route.params.id)
+      console.log(index)
+      this.btnName = '编辑完成'
+      this.showReset = false
+      //  接口查值
+      this.room = { ...this.roomList[index] }
+      this.$store.dispatch('room/isShowImg', this.room.imgUrl)
+    } else {
+      this.showReset = true
+      this.$store.dispatch('room/emptyImg')
+      this.btnName = '立即创建'
+    }
+  },
   methods: {
     submitForm() {
       this.room.status = '上线'
+      // this.loading =
+      // this.openLoading()
+      this.$store.dispatch('room/openLoading')
 
       if (this.$route.params.id === undefined) {
         //  在这里意味着创建房间
@@ -226,26 +271,55 @@ export default {
           message: '恭喜你，成功创建一个房间',
           type: 'success'
         })
-        //  这里发出Post请求  将room数据发上去
 
-        this.idPlus += 1
+        //  这里发出Post请求  将room数据发上去
+        // http://159.138.27.178:3000/api/room/new
+        this.room.imgUrl = JSON.parse(JSON.stringify(this.imgUrl))
+        console.log(this.room.imgUrl)
+        this.updateIdPlus
+        // console.log(this.imgUrl)
+        this.room.id = this.idPlus
+        this.axios.post(this.createUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers }).then(res => {
+          // this.loading = false
+          this.$store.dispatch('room/closeLoading')
+          console.log('创建房间成功'); this.$router.push({ name: 'RoomList' })
+        }).then(err => console.log(err))
       } else {
         this.$message({
           message: '恭喜你，成功编辑一个房间',
           type: 'success'
         })
+        this.room.imgUrl = JSON.parse(JSON.stringify(this.imgUrl))
+        // console.log(this.room.imgUrl)
+
+        this.room.id = this.$route.params.id
+
         //  发出post请求编辑
+        // console.log(this.room)
+        this.axios.post(this.fixUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers })
+          .then(res => {
+            // this.loading = false
+            this.$store.dispatch('room/closeLoading')
+            console.log('编辑房间成功')
+            // this.getRoomList
+            this.$router.push({ name: 'RoomList' })
+          })
+          .then(err => { console.log(err) })
       }
-
       Object.keys(this.room).forEach(key => { this.room[key] = '' })
-      this.room.id = this.idPlus
+      this.$store.dispatch('room/emptyImg')
 
-      this.$router.push({ name: 'RoomList' })
+      // console.log(this.room)
     },
     resetForm() {
       Object.keys(this.room).forEach(key => { this.room[key] = '' })
-      this.room.id = this.idPlus
+      this.$store.dispatch('room/emptyImg')
+    },
+    cancelForm() {
+      this.$router.push({ name: 'RoomList' })
+      this.$store.dispatch('room/emptyImg')
     }
+
   }
 }
 </script>

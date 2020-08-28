@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="block">
-      <el-carousel height="600px">
+      <el-carousel height="600px" style="margin: 0 auto; width: 80%">
         <el-carousel-item v-for="(item,index) in img" :key="index">
           <img :src="item" alt="图片链接失效了" style="height: 800px">
         </el-carousel-item>
@@ -23,8 +23,7 @@ export default {
   data() {
     return {
       user: {},
-      img: [
-        'https://api.dujin.org/bing/1920.php', ' https://api.ixiaowai.cn/api/api.php', 'https://uploadbeta.com/api/pictures/random/?key=BingEverydayWallpaperPicture', ' https://api.ixiaowai.cn/mcapi/mcapi.php']
+      img: ['https://dimg12.c-ctrip.com/images/200514000000wfgqlD7D0_R_550_412.jpg', 'https://dimg10.c-ctrip.com/images/200f14000000w136y3282_R_550_412.jpg', 'https://images4.c-ctrip.com/target/2A0u10000000paqzm214E.jpg', 'https://dimg10.c-ctrip.com/images/200o1a0000018zmdb2197_R_550_412.png']
     }
   },
   computed: {

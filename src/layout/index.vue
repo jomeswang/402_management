@@ -20,6 +20,8 @@ import RightPanel from '@/components/RightPanel'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
+// import axios from 'axios'
+import { Notification } from 'element-ui'
 
 export default {
   name: 'Layout',
@@ -49,9 +51,94 @@ export default {
       }
     }
   },
+  created() {
+    this.WebSocketTest()
+  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    },
+    WebSocketTest() {
+      if ('WebSocket' in window) {
+        // alert('您的浏览器支持 WebSocket!')
+
+        // 打开一个 web socket
+        var ws = new WebSocket('ws://159.138.27.178:9999')
+
+        ws.onopen = function() {
+          // Web Socket 已连接上，使用 send() 方法发送数据
+          ws.send('发送数据')
+          setInterval(() => {
+            ws.send('发送数据')
+          }, 50000)
+          console.log('连接成功')
+          // alert('数据发送中...')
+        }
+
+        ws.onmessage = (evt) => {
+          var received_msg = evt.data
+          const obj = JSON.parse(received_msg)
+          // console.log(obj.status)
+          if (obj.status === '待确认') {
+            // console.log('123')
+            // this.$notify({
+            //   title: '成功',
+            //   message: '这是一条成功的提示消息',
+            //   type: 'success'
+            // })
+            const msg = '嘀嘀嘀！！你有一个  ' + obj.order_room_type + '  的新订单来啦 快来处理吧！'
+            Notification({
+              title: '消息',
+              message: msg,
+              type: 'success',
+              duration: 0
+            })
+
+            if (this.$route.fullPath.indexOf('orderManagement') !== -1) {
+              this.$router.go(0)
+            }
+          }
+          if (obj.status === '已取消') {
+            const msg1 = '你有一个  ' + obj.order_room_type + '  的订单被用户在小程序端取消啦'
+            Notification({
+              title: '消息',
+              message: msg1,
+              type: 'info',
+              duration: 0
+            })
+          }
+          if (obj.status === '已取消' && this.$route.fullPath.indexOf('orderManagement') !== -1) {
+            this.$router.go(0)
+          }
+          // console.log(this.$route)
+          // obj.status = '待入住'
+          // // console.log('13')
+          // axios.post('http://159.138.27.178:3000/api/order/update', obj)
+          //   .then(res => { console.log(res) })
+          //   .catch(err => console.log(err))
+          // alert('数据已接收...')
+        }
+
+        ws.onclose = function() {
+          // 关闭 websocket
+          // alert('连接已关闭...')
+          console.log('连接已关闭')
+          setTimeout(() => {
+            ws.onopen = function() {
+              // Web Socket 已连接上，使用 send() 方法发送数据
+              ws.send('发送数据')
+              setInterval(() => {
+                ws.send('发送数据')
+              }, 50000)
+              console.log('连接成功')
+              // alert('数据发送中...')
+            }
+          }, 2000)
+        }
+      } else {
+        // 浏览器不支持 WebSocket
+        alert('您的浏览器不支持 WebSocket!')
+      }
     }
   }
 }

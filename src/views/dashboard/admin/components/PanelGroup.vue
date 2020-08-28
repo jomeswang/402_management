@@ -1,7 +1,7 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('order')">
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-order">
           <svg-icon icon-class="order_form" class-name="card-panel-icon" />
         </div>
@@ -9,38 +9,38 @@
           <div class="card-panel-text">
             订单总数
           </div>
-          <count-to :start-val="0" :end-val="order_number" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="orderNumber" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('user')">
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-user">
           <svg-icon icon-class="user" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            预定订单数
+            当天订单数
           </div>
-          <count-to :start-val="0" :end-val="user_number" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="userNumber" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('money')">
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-money">
           <svg-icon icon-class="money" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            日总收益
+            日总成交
           </div>
-          <count-to :start-val="0" :end-val="money_number" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="moneyNumber" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('rooms')">
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-rooms">
           <svg-icon icon-class="rooms" class-name="card-panel-icon" />
         </div>
@@ -48,7 +48,7 @@
           <div class="card-panel-text">
             使用房间数
           </div>
-          <count-to :start-val="0" :end-val="rooms_number" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="roomsNumber" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -64,10 +64,24 @@ export default {
   },
   data() {
     return {
-      order_number: 1,
-      user_number: 2,
-      money_number: 3,
-      rooms_number: 4
+      // orderNumber: 0,
+      // userNumber: 0,
+      // moneyNumber: 0,
+      // roomsNumber: 0
+    }
+  },
+  computed: {
+    orderNumber() {
+      return Number(this.$store.state.order.orderNum)
+    },
+    userNumber() {
+      return Number(this.$store.state.order.dayOrderNum)
+    },
+    moneyNumber() {
+      return Number(this.$store.state.order.dayEarnings)
+    },
+    roomsNumber() {
+      return Number(this.$store.state.order.roomUsed)
     }
   },
   methods: {

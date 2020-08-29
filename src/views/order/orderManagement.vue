@@ -568,7 +568,7 @@ export default {
           .then((res) => {
           // console.log('123')
             this.list.length = 0
-            console.log(res)
+            // console.log(res)
             res.data.forEach((item) => {
               const obj = JSON.parse(item)
               const obj1 = {}

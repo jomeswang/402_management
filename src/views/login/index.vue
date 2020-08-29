@@ -230,7 +230,7 @@ export default {
       }, {})
     },
     edit() {
-      const signupUrl = 'http://159.138.27.178:3000/api/user/signup'
+      const signupUrl = 'https://ht1.jomeswang.top/api/user/signup'
       this.editLoading = true
 
       this.axios.post(signupUrl, this.editPassword)

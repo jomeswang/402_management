@@ -71,7 +71,7 @@ export default {
   name: 'CouponList',
   data() {
     return {
-      findUrl: 'http://159.138.27.178:3000/api/orderForm/',
+      findUrl: 'https://ht1.jomeswang.top/api/orderForm/',
       listLoading: false,
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       couponShow: [

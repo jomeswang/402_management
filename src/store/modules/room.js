@@ -5,11 +5,11 @@ const state = {
   idPlus: '',
   imgUrl: [],
   loading: false,
-  findUrl: 'http://159.138.27.178:3000/api/room',
-  createUrl: 'http://159.138.27.178:3000/api/room/new',
-  fixUrl: 'http://159.138.27.178:3000/api/room/fix',
-  deleteUrl: 'http://159.138.27.178:3000/api/room/deleteAll',
-  deleteOneUrl: 'http://159.138.27.178:3000/api/room/delete'
+  findUrl: 'https://ht1.jomeswang.top/api/room',
+  createUrl: 'https://ht1.jomeswang.top/api/room/new',
+  fixUrl: 'https://ht1.jomeswang.top/api/room/fix',
+  deleteUrl: 'https://ht1.jomeswang.top/api/room/deleteAll',
+  deleteOneUrl: 'https://ht1.jomeswang.top/api/room/delete'
 }
 import axios from 'axios'
 import user from './user'

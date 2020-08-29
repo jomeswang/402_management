@@ -1,11 +1,12 @@
 <template>
   <div>
     <!-- :class="{ disabled: uploadDisabled }" -->
+    <!-- 上传数据空了 加headers 时  重构上传 -->
     <el-upload
-      action="http://159.138.27.178:3000/api/room/pic"
-      :headers="headers"
+      action="https://ht1.jomeswang.top/api/room/pic"
       list-type="picture-card"
       :on-success="handleAvatarSuccess"
+      :on-error="err"
       :before-upload="beforeAvatarUpload"
       :file-list="fileList"
       :limit="4"
@@ -63,10 +64,13 @@ export default {
 
   },
   methods: {
+    err(res) {
+      console.log(res)
+    },
     handleAvatarSuccess(response) {
       //  处理上传成功回调
-      window.console.log(response)
-      const obj = { name: response.name, url: response.path.replace('tmp\\', 'http://baixingpt.jomeswang.top/') }
+      // window.console.log(response)
+      const obj = { name: response.name, url: 'https://ht1.jomeswang.top/' + response.path }
       // console.log(obj)
       // const obj = { name: response.name, url: response.path }
       this.$store.dispatch('room/updateImg', obj)
@@ -78,7 +82,7 @@ export default {
       })
     },
     beforeAvatarUpload(file) {
-      console.log(this.$store.state.user)
+      // console.log(this.$store.state.user)
       //  检查 图片类型和大小
       const isJPG = file.type === 'image/jpeg'
       const isPNG = file.type === 'image/png'

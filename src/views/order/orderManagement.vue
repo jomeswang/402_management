@@ -242,8 +242,8 @@ export default {
   },
   data() {
     return {
-      postUrl: 'http://159.138.27.178:3000/api/order/update',
-      findUrl: 'http://159.138.27.178:3000/api/order/',
+      postUrl: 'https://ht1.jomeswang.top/api/order/update',
+      findUrl: 'https://ht1.jomeswang.top/api/order/',
       listLoading: false,
       detailIndex: '',
       showPrice: false,
@@ -568,7 +568,7 @@ export default {
           .then((res) => {
           // console.log('123')
             this.list.length = 0
-
+            console.log(res)
             res.data.forEach((item) => {
               const obj = JSON.parse(item)
               const obj1 = {}

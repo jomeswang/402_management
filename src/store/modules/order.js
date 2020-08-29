@@ -27,7 +27,7 @@ const actions = {
       state.unConfirmOrder.length = 0
       state.earnings.length = 0
       state.list.length = 0
-      const findUrl = 'http://159.138.27.178:3000/api/order/'
+      const findUrl = 'https://ht1.jomeswang.top/api/order/'
       // console.log(use, '456')
       // console.log(user)
 

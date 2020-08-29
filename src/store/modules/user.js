@@ -60,9 +60,9 @@ const actions = {
   // this.users[]
   login({ commit }, userInfo) {
     const { username, password } = userInfo
-    // const setUrl = 'http://159.138.27.178:3000/api/user/set'
-    const loginUrl = 'http://159.138.27.178:3000/api/user/login'
-    // const signupUrl = 'http://159.138.27.178:3000/api/user/signup'
+    // const setUrl = 'https://ht1.jomeswang.top/api/user/set'
+    const loginUrl = 'https://ht1.jomeswang.top/api/user/login'
+    // const signupUrl = 'https://ht1.jomeswang.top/api/user/signup'
     // axios.post(loginUrl, { username: username.trim(), password: password })
     // axios.post(setUrl, { username: username.trim(), password: password })
     //   .then(res => console.log(res))

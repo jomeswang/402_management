@@ -63,7 +63,7 @@ export default {
         // alert('您的浏览器支持 WebSocket!')
 
         // 打开一个 web socket
-        var ws = new WebSocket('ws://159.138.27.178:9999')
+        var ws = new WebSocket('ws://ht1.jomeswang.top:9998')
 
         ws.onopen = function() {
           // Web Socket 已连接上，使用 send() 方法发送数据
@@ -113,7 +113,7 @@ export default {
           // console.log(this.$route)
           // obj.status = '待入住'
           // // console.log('13')
-          // axios.post('http://159.138.27.178:3000/api/order/update', obj)
+          // axios.post('https://ht1.jomeswang.top/api/order/update', obj)
           //   .then(res => { console.log(res) })
           //   .catch(err => console.log(err))
           // alert('数据已接收...')

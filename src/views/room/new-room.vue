@@ -273,14 +273,15 @@ export default {
         })
 
         //  这里发出Post请求  将room数据发上去
-        // http://159.138.27.178:3000/api/room/new
+        // https://ht1.jomeswang.top/api/room/new
         this.room.imgUrl = JSON.parse(JSON.stringify(this.imgUrl))
-        console.log(this.room.imgUrl)
+        // console.log(this.room.imgUrl)
         this.updateIdPlus
         // console.log(this.imgUrl)
         this.room.id = this.idPlus
         this.axios.post(this.createUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers }).then(res => {
           // this.loading = false
+          // console.log(res, '123')
           this.$store.dispatch('room/closeLoading')
           console.log('创建房间成功'); this.$router.push({ name: 'RoomList' })
         }).then(err => console.log(err))

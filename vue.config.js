@@ -34,8 +34,8 @@ module.exports = {
     open: true,
     proxy: {
       '/api': {
-        // http://159.138.27.178:3000/api/room/
-        target: 'http://159.138.27.178:3000',
+        // https://ht1.jomeswang.top/api/room/
+        target: 'https://ht1.jomeswang.top',
         ws: true,
         changeOrigin: true,
         pathRewrite: {

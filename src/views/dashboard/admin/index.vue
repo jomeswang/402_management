@@ -88,9 +88,11 @@ export default {
               orderTime = item.orderTime
             }
           })
-          this.lineChartData.roomData.push(roomNum)
-          this.lineChartData.orderData.push(orderNum)
-          this.lineChartData.dayData.push(orderTime)
+          if (orderTime !== '' && orderTime !== undefined) {
+            this.lineChartData.roomData.push(roomNum)
+            this.lineChartData.orderData.push(orderNum)
+            this.lineChartData.dayData.push(orderTime)
+          }
         }
         this.loading = false
       })
@@ -118,9 +120,11 @@ export default {
               orderTime = item.orderTime
             }
           })
-          this.lineChartData.roomData.push(roomNum)
-          this.lineChartData.orderData.push(orderNum)
-          this.lineChartData.dayData.push(orderTime)
+          if (orderTime !== '' && orderTime !== undefined) {
+            this.lineChartData.roomData.push(roomNum)
+            this.lineChartData.orderData.push(orderNum)
+            this.lineChartData.dayData.push(orderTime)
+          }
         }
         this.loading = false
       })
@@ -151,8 +155,10 @@ export default {
             price += Number(item.money)
           }
         })
-        this.dailyMoney.orderTime.push(orderTime)
-        this.dailyMoney.price.push(price)
+        if (orderTime !== '' && orderTime !== undefined) {
+          this.dailyMoney.orderTime.push(orderTime)
+          this.dailyMoney.price.push(price)
+        }
       }
       // console.log(this.dailyMoney)
     }

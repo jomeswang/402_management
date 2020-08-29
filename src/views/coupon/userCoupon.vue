@@ -91,49 +91,49 @@ export default {
   },
   data() {
     return {
-      findUrl: 'http://159.138.27.178:3000/api/event',
+      findUrl: 'https://ht1.jomeswang.top/api/event',
       listLoading: false,
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       userCoupon: [
-        {
-          couponId: '123',
-          couponName: '超级大房',
-          userName: '456',
-          type: '餐饮券',
-          status: '已过期',
-          moneySill: '20',
-          discount: '50',
-          timeBegin: '2019-06-02',
-          timeEnd: '2019-06-08',
-          validTime: '6:00 - 8:00',
-          couponNum: 12
-        },
-        {
-          couponId: '546',
-          couponName: '超级大房1',
-          userName: '4567',
-          type: '餐饮券',
-          status: '已使用',
-          moneySill: '20',
-          discount: '50',
-          timeBegin: '2019-06-02',
-          timeEnd: '2019-06-08',
-          validTime: '6:00 - 8:00',
-          couponNum: 12
-        },
-        {
-          couponId: '79',
-          couponName: '超级大房2',
-          userName: '13',
-          type: '餐饮券',
-          status: '可使用',
-          moneySill: '20',
-          discount: '50',
-          timeBegin: '2019-06-02',
-          timeEnd: '2019-06-08',
-          validTime: '6:00 - 8:00',
-          couponNum: 12
-        }
+        // {
+        //   couponId: '123',
+        //   couponName: '超级大房',
+        //   userName: '456',
+        //   type: '餐饮券',
+        //   status: '已过期',
+        //   moneySill: '20',
+        //   discount: '50',
+        //   timeBegin: '2019-06-02',
+        //   timeEnd: '2019-06-08',
+        //   validTime: '6:00 - 8:00',
+        //   couponNum: 12
+        // },
+        // {
+        //   couponId: '546',
+        //   couponName: '超级大房1',
+        //   userName: '4567',
+        //   type: '餐饮券',
+        //   status: '已使用',
+        //   moneySill: '20',
+        //   discount: '50',
+        //   timeBegin: '2019-06-02',
+        //   timeEnd: '2019-06-08',
+        //   validTime: '6:00 - 8:00',
+        //   couponNum: 12
+        // },
+        // {
+        //   couponId: '79',
+        //   couponName: '超级大房2',
+        //   userName: '13',
+        //   type: '餐饮券',
+        //   status: '可使用',
+        //   moneySill: '20',
+        //   discount: '50',
+        //   timeBegin: '2019-06-02',
+        //   timeEnd: '2019-06-08',
+        //   validTime: '6:00 - 8:00',
+        //   couponNum: 12
+        // }
       ],
       listCopy: [
         // {

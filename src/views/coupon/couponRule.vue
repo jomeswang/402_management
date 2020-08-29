@@ -306,12 +306,12 @@ export default {
         '一次性发放',
         '每天一次'
       ],
-      deleteCouponsUrl: 'http://159.138.27.178:3000/api/event/delete',
-      newUrl: 'http://159.138.27.178:3000/api/coupons/new',
-      fixUrl: 'http://159.138.27.178:3000/api/coupons/fix',
-      deleteUrl: 'http://159.138.27.178:3000/api/coupons/delete',
-      deleteAllUrl: 'http://159.138.27.178:3000/api/coupons/deleteAll',
-      findUrl: 'http://159.138.27.178:3000/api/coupons',
+      deleteCouponsUrl: 'https://ht1.jomeswang.top/api/event/delete',
+      newUrl: 'https://ht1.jomeswang.top/api/coupons/new',
+      fixUrl: 'https://ht1.jomeswang.top/api/coupons/fix',
+      deleteUrl: 'https://ht1.jomeswang.top/api/coupons/delete',
+      deleteAllUrl: 'https://ht1.jomeswang.top/api/coupons/deleteAll',
+      findUrl: 'https://ht1.jomeswang.top/api/coupons',
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       dayChange: [
         '每一天',
@@ -426,10 +426,10 @@ export default {
     }
   },
   // created() {
-  //   // this.axios.get('http://159.138.27.178:3000/api/coupons')
+  //   // this.axios.get('https://ht1.jomeswang.top/api/coupons')
   //   //     .then(res => console.log(JSON.parse(res.data[0])))
   //   //     .catch(res => console.log(res))
-  //   // this.axios.post('http://159.138.27.178:3000/api/coupons/deleteAll')
+  //   // this.axios.post('https://ht1.jomeswang.top/api/coupons/deleteAll')
   //   //   .then(res => console.log(res))
   //   //   .catch(res => console.log(res))
   //   //  获得数据 得到最后优惠券的编号 +1 变成 idPlus 和 couponForm.id

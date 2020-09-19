@@ -4,21 +4,23 @@ const state = {
   ],
   idPlus: '',
   imgUrl: [],
-  loading: false,
-  findUrl: 'https://ht1.jomeswang.top/api/room',
-  createUrl: 'https://ht1.jomeswang.top/api/room/new',
-  fixUrl: 'https://ht1.jomeswang.top/api/room/fix',
-  deleteUrl: 'https://ht1.jomeswang.top/api/room/deleteAll',
-  deleteOneUrl: 'https://ht1.jomeswang.top/api/room/delete'
+  loading: false
+  // findUrl: 'https://ht1.jomeswang.top/api/room',
+  // createUrl: 'https://ht1.jomeswang.top/api/room/new',
+  // fixUrl: 'https://ht1.jomeswang.top/api/room/fix',
+  // deleteUrl: 'https://ht1.jomeswang.top/api/room/deleteAll'
+  // deleteOneUrl: 'https://ht1.jomeswang.top/api/room/delete'
 }
-import axios from 'axios'
-import user from './user'
+// import axios from 'axios'
+// import user from './user'
+import api from '@/api'
 
 const actions = {
   getRoomList({ state }) {
     return new Promise((resolve, reject) => {
       // console.log(this.$store, '123')
-      axios.get(state.findUrl, { headers: user.state.headers })
+      // axios.get(state.findUrl, { headers: user.state.headers })
+      api.room.getRoomList()
         .then(res => {
           state.roomList.length = 0
 

@@ -195,14 +195,14 @@ export default {
   },
   computed: {
     ...mapState({
-      findUrl: state => state.room.findUrl,
-      createUrl: state => state.room.createUrl,
-      fixUrl: state => state.room.fixUrl,
-      deleteUrl: state => state.room.deleteUrl,
+      // findUrl: state => state.room.findUrl,
+      // createUrl: state => state.room.createUrl,
+      // fixUrl: state => state.room.fixUrl,
+      // deleteUrl: state => state.room.deleteUrl,
       roomList: state => state.room.roomList,
       imgUrl: state => state.room.imgUrl,
       idPlus: state => state.room.idPlus,
-      deleteOneUrl: state => state.room.deleteOneUrl,
+      // deleteOneUrl: state => state.room.deleteOneUrl,
       loading: state => state.room.loading
     }),
     ...mapActions('room', [
@@ -279,12 +279,14 @@ export default {
         this.updateIdPlus
         // console.log(this.imgUrl)
         this.room.id = this.idPlus
-        this.axios.post(this.createUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers }).then(res => {
+        // this.axios.post(this.createUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers })
+        this.$api.room.createRoom(this.room)
+          .then(res => {
           // this.loading = false
           // console.log(res, '123')
-          this.$store.dispatch('room/closeLoading')
-          console.log('创建房间成功'); this.$router.push({ name: 'RoomList' })
-        }).then(err => console.log(err))
+            this.$store.dispatch('room/closeLoading')
+            console.log('创建房间成功'); this.$router.push({ name: 'RoomList' })
+          }).then(err => console.log(err))
       } else {
         this.$message({
           message: '恭喜你，成功编辑一个房间',
@@ -297,7 +299,8 @@ export default {
 
         //  发出post请求编辑
         // console.log(this.room)
-        this.axios.post(this.fixUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers })
+        // this.axios.post(this.fixUrl, JSON.stringify(this.room), { headers: this.$store.state.user.headers })
+        this.$api.room.fixRoom(this.room)
           .then(res => {
             // this.loading = false
             this.$store.dispatch('room/closeLoading')

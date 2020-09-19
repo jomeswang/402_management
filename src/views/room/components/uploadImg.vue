@@ -2,6 +2,7 @@
   <div>
     <!-- :class="{ disabled: uploadDisabled }" -->
     <!-- 上传数据空了 加headers 时  重构上传 -->
+    <!--  这里的headers  需要测试 -->
     <el-upload
       action="https://ht1.jomeswang.top/api/room/pic"
       list-type="picture-card"

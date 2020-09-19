@@ -19,9 +19,12 @@ import './permission' // permission control
 import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
+import api from './api'
 import axios from 'axios'
 // 把 `axios` 加到 `Vue` 的原型中
 Vue.prototype.axios = axios
+Vue.prototype.$api = api
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

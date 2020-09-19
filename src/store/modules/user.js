@@ -1,7 +1,8 @@
 // import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken, getAccessToken, setAccessToken, removeAccessToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '@/api'
 
 const state = {
   token: getToken(),
@@ -61,7 +62,7 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     // const setUrl = 'https://ht1.jomeswang.top/api/user/set'
-    const loginUrl = 'https://ht1.jomeswang.top/api/user/login'
+    // const loginUrl = 'https://ht1.jomeswang.top/api/user/login'
     // const signupUrl = 'https://ht1.jomeswang.top/api/user/signup'
     // axios.post(loginUrl, { username: username.trim(), password: password })
     // axios.post(setUrl, { username: username.trim(), password: password })
@@ -77,7 +78,8 @@ const actions = {
       // }).catch(error => {
       //   reject(error)
       // })
-      axios.post(loginUrl, { username: username.trim(), password: password })
+      // axios.post(loginUrl, { username: username.trim(), password: password })
+      api.user.loginUser({ username: username.trim(), password: password })
         .then(res => {
           // console.log(res.headers)
           const headers = { 'Content-Type': res.headers['content-type'], 'X-Access-Token': res.headers['x-access-token'] }

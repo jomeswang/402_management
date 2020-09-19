@@ -91,7 +91,7 @@ export default {
   },
   data() {
     return {
-      findUrl: 'https://ht1.jomeswang.top/api/event',
+      // findUrl: 'https://ht1.jomeswang.top/api/event',
       listLoading: false,
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       userCoupon: [
@@ -366,7 +366,8 @@ export default {
 
     updateUserCoupon() {
       this.listLoading = true
-      this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      this.$api.couple.getUserCouple()
         .then(res => {
           this.userCoupon.length = 0
 
@@ -396,7 +397,8 @@ export default {
     updateListCopy() {
       return new Promise((resolve, reject) => {
         this.listLoading = true
-        this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+        // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+        this.$api.couple.getUserCouple()
           .then(res => {
             this.listCopy.length = 0
 

@@ -142,8 +142,8 @@ export default {
 
   computed: {
     ...mapState({
-      roomList: state => state.room.roomList,
-      deleteOneUrl: state => state.room.deleteOneUrl
+      roomList: state => state.room.roomList
+      // deleteOneUrl: state => state.room.deleteOneUrl
 
     }),
     ...mapActions('room', [
@@ -192,7 +192,8 @@ export default {
         type: 'success'
       })
       // console.log(row)
-      this.axios.post(this.deleteOneUrl, JSON.stringify(row), { headers: this.$store.state.user.headers })
+      // this.axios.post(this.deleteOneUrl, JSON.stringify(row), { headers: this.$store.state.user.headers })
+      this.$api.room.deleteOneRoom(row)
         .then(
           res => {
             console.log('Delete success!!'); this.handleGet(); this.listLoading = false

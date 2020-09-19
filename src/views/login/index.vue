@@ -230,10 +230,12 @@ export default {
       }, {})
     },
     edit() {
-      const signupUrl = 'https://ht1.jomeswang.top/api/user/signup'
+      // const signupUrl = 'https://ht1.jomeswang.top/api/user/signup'
       this.editLoading = true
 
-      this.axios.post(signupUrl, this.editPassword)
+      //  修改密码
+      // this.axios.post(signupUrl, this.editPassword)
+      this.$api.user.editPassword(this.editPassword)
         .then(res => {
           if (res.data === '密码不正确') {
             this.$message({

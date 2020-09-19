@@ -9,8 +9,9 @@ const state = {
   earnings: [0, 0, 0, 0, 0, 0, 0],
   list: []
 }
-import axios from 'axios'
-import user from './user'
+// import axios from 'axios'
+// import user from './user'
+import api from '@/api'
 
 const mutations = {
 
@@ -27,11 +28,12 @@ const actions = {
       state.unConfirmOrder.length = 0
       state.earnings.length = 0
       state.list.length = 0
-      const findUrl = 'https://ht1.jomeswang.top/api/order/'
+      // const findUrl = 'https://ht1.jomeswang.top/api/order/'
       // console.log(use, '456')
       // console.log(user)
+      // axios.get(findUrl, { headers: user.state.headers })
 
-      axios.get(findUrl, { headers: user.state.headers })
+      api.order.getOrderList()
         .then((res) => {
           res.data.forEach((item) => {
             const obj = JSON.parse(item)

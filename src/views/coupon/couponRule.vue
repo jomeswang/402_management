@@ -306,12 +306,12 @@ export default {
         '一次性发放',
         '每天一次'
       ],
-      deleteCouponsUrl: 'https://ht1.jomeswang.top/api/event/delete',
-      newUrl: 'https://ht1.jomeswang.top/api/coupons/new',
-      fixUrl: 'https://ht1.jomeswang.top/api/coupons/fix',
-      deleteUrl: 'https://ht1.jomeswang.top/api/coupons/delete',
-      deleteAllUrl: 'https://ht1.jomeswang.top/api/coupons/deleteAll',
-      findUrl: 'https://ht1.jomeswang.top/api/coupons',
+      // deleteCouponsUrl: 'https://ht1.jomeswang.top/api/event/delete',
+      // newUrl: 'https://ht1.jomeswang.top/api/coupons/new',
+      // fixUrl: 'https://ht1.jomeswang.top/api/coupons/fix',
+      // deleteUrl: 'https://ht1.jomeswang.top/api/coupons/delete',
+      // deleteAllUrl: 'https://ht1.jomeswang.top/api/coupons/deleteAll',
+      // findUrl: 'https://ht1.jomeswang.top/api/coupons',
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       dayChange: [
         '每一天',
@@ -469,7 +469,8 @@ export default {
     },
     getRoomOptions() {
       return new Promise((resolve, reject) => {
-        this.axios.get(this.$store.state.room.findUrl, { headers: this.$store.state.user.headers })
+        // this.axios.get(this.$store.state.room.findUrl, { headers: this.$store.state.user.headers })
+        this.$api.room.getRoomList()
           .then(res => {
             this.roomOptions.length = 0
 
@@ -511,7 +512,8 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        this.axios.post(this.deleteUrl, JSON.stringify(row), { headers: this.$store.state.user.headers })
+        // this.axios.post(this.deleteUrl, JSON.stringify(row), { headers: this.$store.state.user.headers })
+        this.$api.couple.deleteCoupleRule(row)
           .then(res => { console.log('成功删除一条规则'); this.listLoading = false; this.loadingForm() })
           .catch(err => { console.log(err) })
         this.$message({
@@ -548,7 +550,8 @@ export default {
         }
         // obj2.validTime = this.formatTime(obj2.validTime)
         // this.couponList[index] = obj2
-        this.axios.post(this.fixUrl, JSON.stringify(obj2), { headers: this.$store.state.user.headers })
+        // this.axios.post(this.fixUrl, JSON.stringify(obj2), { headers: this.$store.state.user.headers })
+        this.$api.couple.fixCoupleRule(obj2)
           .then(res => {
             console.log('Edit Success'); this.loadingForm()
             this.listLoading = true
@@ -578,7 +581,8 @@ export default {
             this.couponForm.request = -1
           }
         }
-        this.axios.post(this.newUrl, JSON.stringify(this.couponForm), { headers: this.$store.state.user.headers })
+        // this.axios.post(this.newUrl, JSON.stringify(this.couponForm), { headers: this.$store.state.user.headers })
+        this.$api.couple.createCoupleRule(this.couponForm)
           .then(res => {
             console.log('创建一条优惠券规则成功'); this.loadingForm(); this.listLoading = true
             this.$message({
@@ -623,8 +627,8 @@ export default {
         let max = 0
 
         // console.log(this.listCopy)
-        this.axios
-          .get(this.findUrl, { headers: this.$store.state.user.headers })
+        // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+        this.$api.couple.getCoupleRule()
           .then(res => {
             this.listCopy.length = 0
             // console.log('inside')
@@ -645,7 +649,8 @@ export default {
     },
     updateListCopy() {
       this.axios
-        .get(this.findUrl, { headers: this.$store.state.user.headers })
+      // .get(this.findUrl, { headers: this.$store.state.user.headers })
+      this.$api.couple.getCoupleRule()
         .then(res => {
           this.listCopy.length = 0
           // console.log('inside')
@@ -661,8 +666,8 @@ export default {
         this.listLoading = true
         this.getRoomOptions()
           .then(() => {
-            this.axios
-              .get(this.findUrl, { headers: this.$store.state.user.headers })
+            // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+            this.$api.couple.getCoupleRule()
               .then(res => {
                 this.couponList.length = 0
                 res.data.forEach(item => {
@@ -677,11 +682,11 @@ export default {
       })
     },
 
-    deleteAll() {
-      this.axios.post(this.deleteAllUrl, { headers: this.$store.state.user.headers })
-        .then(console.log('deleteAll scuucee'))
-        .catch(err => console.log(err))
-    },
+    // deleteAll() {
+    //   this.axios.post(this.deleteAllUrl, { headers: this.$store.state.user.headers })
+    //     .then(console.log('deleteAll scuucee'))
+    //     .catch(err => console.log(err))
+    // },
     //  删掉规则对应的全部发放的优惠券
     deleteAllCoupons(row, index) {
       this.$confirm('将删除规则对应的所有已发放的优惠券 ！！', '提示', {
@@ -689,8 +694,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.axios.post(this.deleteCouponsUrl, { id: row.id }, { headers: this.$store.state.user.headers })
-          .then(res => { console.log(res) })
+        // this.axios.post(this.deleteCouponsUrl, { id: row.id }, { headers: this.$store.state.user.headers })
+        this.$api.couple.deleteCoupleRuleAll({ id: row.id })
+          .then(res => {
+            this.$message({
+              message: '成功删除规则对应的全体优惠券',
+              type: 'success'
+            })
+          })
           .catch(err => { console.log(err) })
         this.$message({
           type: 'success',
@@ -708,7 +719,8 @@ export default {
     handleFilter(value) {
       // console.log('123')
       this.listLoading = true
-      this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      this.$api.couple.getCoupleRule()
         .then(res => {
           this.listCopy.length = 0
           // console.log('inside')

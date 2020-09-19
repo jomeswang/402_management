@@ -71,7 +71,7 @@ export default {
   name: 'CouponList',
   data() {
     return {
-      findUrl: 'https://ht1.jomeswang.top/api/orderForm/',
+      // findUrl: 'https://ht1.jomeswang.top/api/orderForm/',
       listLoading: false,
       calendarTypeOptions: ['餐饮券', '客房券', '棋牌券'],
       couponShow: [
@@ -164,7 +164,8 @@ export default {
     updateCouponShow() {
       this.listLoading = true
 
-      this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+      this.$api.couple.getCoupleList()
         .then(res => {
           this.couponShow.length = 0
 
@@ -192,7 +193,8 @@ export default {
       return new Promise((resolve, reject) => {
         this.listLoading = true
 
-        this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+        // this.axios.get(this.findUrl, { headers: this.$store.state.user.headers })
+        this.$api.couple.getCoupleList()
           .then(res => {
             this.listCopy.length = 0
 

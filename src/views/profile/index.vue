@@ -8,6 +8,7 @@
       </el-carousel>
     </div>
     <mallki class-name="mallki-text title" text="402后端管理系统" />
+    <span style="float: right">权限: {{ role }} </span>
 
   </div>
 </template>
@@ -32,7 +33,9 @@ export default {
     }
   },
   computed: {
-
+    role() {
+      if (this.$store.state.user.roles.join() === 'admin') return '管理员'; else return '普通用户'
+    }
   },
   created() {
   },

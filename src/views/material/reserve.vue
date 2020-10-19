@@ -107,7 +107,12 @@
               <el-button type="primary" size="mini" @click="editForm(row)">
                 编辑
               </el-button>
-              <el-button type="success" size="mini" @click="changeForm(row)">
+              <el-button
+                v-permission="['admin']"
+                type="success"
+                size="mini"
+                @click="changeForm(row)"
+              >
                 核销完成
               </el-button>
               <el-button type="danger" size="mini" @click="deleteForm(row)">
@@ -176,9 +181,12 @@
 
 <script>
 import { parseTime } from '@/utils'
+import permission from '@/directive/permission/index.js' // 权限判断指令
 
 export default {
   name: 'Reserve',
+  directives: { permission },
+
   filters: {
     statusFilter(status) {
       const statusMap = {

@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
     <div class="block">
-      <el-carousel height="600px" style="margin: 0 auto; width: 80%">
+      <el-carousel height="800px" style="margin: 0 auto; width: 100%">
         <el-carousel-item v-for="(item,index) in img" :key="index">
-          <img :src="item" alt="图片链接失效了" style="height: 800px">
+          <img :src="item" alt="图片链接失效了" style="width: 100%;height: 800px">
         </el-carousel-item>
       </el-carousel>
     </div>
-    <mallki class-name="mallki-text title" text="后端管理系统" />
+    <mallki class-name="mallki-text title" text="402后端管理系统" />
 
   </div>
 </template>
@@ -23,7 +23,12 @@ export default {
   data() {
     return {
       user: {},
-      img: ['https://dimg12.c-ctrip.com/images/200514000000wfgqlD7D0_R_550_412.jpg', 'https://dimg10.c-ctrip.com/images/200f14000000w136y3282_R_550_412.jpg', 'https://images4.c-ctrip.com/target/2A0u10000000paqzm214E.jpg', 'https://dimg10.c-ctrip.com/images/200o1a0000018zmdb2197_R_550_412.png']
+      img: [
+        'http://photo.jomeswang.top/20200923123002.png',
+        'http://photo.jomeswang.top/20200923123059.png',
+        'http://photo.jomeswang.top/20200923123126.png',
+        'http://photo.jomeswang.top/20200923123158.png'
+      ]
     }
   },
   computed: {

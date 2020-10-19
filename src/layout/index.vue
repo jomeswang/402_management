@@ -52,7 +52,7 @@ export default {
     }
   },
   created() {
-    this.WebSocketTest()
+    // this.WebSocketTest()
   },
   methods: {
     handleClickOutside() {

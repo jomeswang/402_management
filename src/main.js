@@ -38,6 +38,13 @@ Vue.prototype.$api = api
 //   mockXHR()
 // }
 
+// import permission from '@/directive/permission/permission'
+// Vue.directive('permission', {
+//   mounted(el) {
+//     el.permission()
+//   }
+// })
+
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium', // set element-ui default size
   i18n: (key, value) => i18n.t(key, value)

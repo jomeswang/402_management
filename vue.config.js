@@ -1,13 +1,13 @@
 'use strict'
 const path = require('path')
+// const { logo } = require('./src/settings.js')
 const defaultSettings = require('./src/settings.js')
 
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || '百姓渔村小程序后台管理' // page title
-
+const name = defaultSettings.title // page title
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
 // For example, Mac: sudo npm run

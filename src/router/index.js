@@ -7,9 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import roomRouter from './modules/room_charge'
-import couponRouter from './modules/coupon'
-
+// import roomRouter from './modules/room_charge'
+// import couponRouter from './modules/coupon'
+import billRouter from './modules/bill'
+import materialRouter from './modules/material'
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -68,46 +69,33 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
+  // {
+  //   path: '/',
+  //   component: Layout,
+  //   redirect: '/dashboard',
+  //   children: [
+  //     {
+  //       path: 'dashboard',
+  //       component: () => import('@/views/dashboard/index'),
+  //       name: 'Dashboard',
+  //       meta: { title: 'dashboard', icon: 'dashboard', affix: true }
+  //     }
+  //   ]
+  // },
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: 'dashboard', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
+    redirect: '/index',
     children: [
       {
         path: 'index',
         component: () => import('@/views/profile/index'),
         name: 'Profile',
-        meta: { title: 'profile', icon: 'user', noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/orderManagement',
-    component: Layout,
-    redirect: '/orderManagement/index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/order/orderManagement'),
-        name: 'OrderManagement',
-        meta: { title: 'orderManagement', icon: 'order_form', affix: true }
+        meta: { title: 'profile', icon: 'user', noCache: true, affix: true }
       }
     ]
   }
+
 ]
 
 /**
@@ -159,8 +147,10 @@ export const asyncRoutes = [
 
   /** when your routing map is too long, you can split it into small modules **/
   // nestedRouter,
-  roomRouter,
-  couponRouter,
+  billRouter,
+  materialRouter,
+  // roomRouter,
+  // couponRouter,
 
   {
     path: '/i18n',
@@ -170,7 +160,10 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/i18n-demo/index'),
         name: 'I18n',
-        meta: { title: 'i18n', icon: 'international' }
+        meta: { title: 'i18n',
+          icon: 'international',
+          roles: ['admin']
+        }
       }
     ]
   },

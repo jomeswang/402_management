@@ -14,6 +14,8 @@
 </template>
 
 <script>
+const defaultSettings = require('@/settings.js')
+
 export default {
   name: 'SidebarLogo',
   props: {
@@ -24,8 +26,8 @@ export default {
   },
   data() {
     return {
-      title: '百姓渔村小程序后台管理',
-      logo: 'http://pavo.elongstatic.com/i/Hotel795_325/nw_GNJo3tMRfq.webp'
+      title: defaultSettings.title,
+      logo: defaultSettings.logo
     }
   }
 }

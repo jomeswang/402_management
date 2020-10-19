@@ -56,6 +56,9 @@ var instance = axios.create({ timeout: 1000 * 12 })
 // 设置post请求头
 instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
+// instance.defaults.h
+// instance.defaults.headers.get = store.state.user.headers
+
 /**
  * 请求拦截器
  * 每次请求前，如果存在token则在请求头中携带token
@@ -67,7 +70,10 @@ instance.interceptors.request.use(
     // 后台根据携带的token判断用户的登录情况，并返回给我们对应的状态码
     // 而后我们可以在响应拦截器中，根据状态码进行一些统一的操作。
     const token = store.state.user.token
+    // console.log(store.state.user.headers)
     token && (config.headers = store.state.user.headers)
+    // config.data['cookie'] = store.state.user.headers['cookie']
+    console.log(config)
     return config
   },
   error => Promise.error(error))

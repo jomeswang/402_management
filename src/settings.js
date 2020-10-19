@@ -1,5 +1,6 @@
 module.exports = {
-  title: '百姓渔村小程序后台管理',
+  title: '402后台管理',
+  logo:'http://photo.jomeswang.top/20200923111945.png',
 
   /**
    * @type {boolean} true | false

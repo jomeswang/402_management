@@ -1,5 +1,10 @@
 export default {
   route: {
+    billO: '核销发票管理',
+    billI: '发票管理',
+    materialM: '耗材管理',
+    materialOwn: '已有耗材管理',
+    materialReserve: '预定耗材管理',
     dashboard: '首页',
     documentation: '文档',
     guide: '引导页',
@@ -50,6 +55,7 @@ export default {
     inlineEditTable: 'Table 内编辑',
     complexTable: '综合 Table',
     orderManagement: '订单管理',
+    verification: '核销管理',
     tab: 'Tab',
     form: '表单',
     createArticle: '创建文章',
@@ -77,7 +83,7 @@ export default {
     dashboard: '首页',
     github: '项目地址',
     logOut: '退出登录',
-    profile: '商家介绍',
+    profile: '实验室介绍',
     theme: '换肤',
     size: '布局大小'
   },

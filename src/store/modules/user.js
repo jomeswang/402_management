@@ -46,13 +46,13 @@ const users = {
   'admin-token': {
     roles: ['admin'],
     introduction: 'I am a super administrator',
-    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    avatar: 'http://photo.jomeswang.top/20200923111945.png',
     name: 'Super Admin'
   },
   'editor-token': {
     roles: ['editor'],
     introduction: 'I am an editor',
-    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    avatar: 'http://photo.jomeswang.top/20200923111945.png',
     name: 'Normal Editor'
   }
 }
@@ -79,13 +79,16 @@ const actions = {
       //   reject(error)
       // })
       // axios.post(loginUrl, { username: username.trim(), password: password })
-      api.user.loginUser({ username: username.trim(), password: password })
+      api.user.loginUser({ data: { name: username.trim(), pwd: password },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }})
         .then(res => {
-          // console.log(res.headers)
-          const headers = { 'Content-Type': res.headers['content-type'], 'X-Access-Token': res.headers['x-access-token'] }
+          console.log(res, res.data['set-cookie'])
+          const headers = { 'Content-Type': 'application/json', 'Authorization': res.data['set-cookie'] }
           commit('SET_HEADERS', headers)
           setAccessToken(headers)
-          const data = tokens[res.data.username]
+          const data = tokens[res.data.data.name]
           commit('SET_TOKEN', data.token)
           setToken(data.token)
           resolve()

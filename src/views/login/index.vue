@@ -1,10 +1,17 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      autocomplete="on"
+      label-position="left"
+    >
 
       <div class="title-container">
         <h3 class="title">
-          百姓渔村小程序后台管理
+          {{ title }}
         </h3>
         <lang-select class="set-language" />
       </div>
@@ -25,14 +32,18 @@
         />
       </el-form-item>
 
-      <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
+      <el-tooltip
+        v-model="capsTooltip"
+        content="Caps lock is On"
+        placement="right"
+        manual
+      >
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
           <el-input
             :key="passwordType"
-
             ref="password"
             v-model="loginForm.password"
             class="inputForm"
@@ -45,13 +56,21 @@
             @blur="capsTooltip = false"
             @keyup.enter.native="handleLogin"
           />
-          <span class="show-pwd" @click="showPwd">
+          <span
+            class="show-pwd"
+            @click="showPwd"
+          >
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >
         {{ $t('login.logIn') }}
       </el-button>
       <!--
@@ -65,7 +84,17 @@
           </span>
         </div>
       </div> -->
-      <el-link type="primary" @click="dialogVisible=true">修改密码</el-link>
+      <el-link
+        type="primary"
+        style="float: left"
+        @click="dialogVisible=true"
+      >修改密码</el-link>
+
+      <el-link
+        style="float: right"
+        type="success"
+        @click="registerVisible=true"
+      >注册账号</el-link>
     </el-form>
 
     <el-dialog
@@ -74,33 +103,86 @@
       width="30%"
       @close="cancelEdit"
     >
-      <el-form ref="form" :model="editPassword" label-width="80px">
+      <el-form
+        ref="form"
+        :model="editPassword"
+        label-width="80px"
+      >
         <el-form-item label="用户名">
-          <el-input v-model="editPassword.username" />
+          <el-input v-model="editPassword.name" />
 
         </el-form-item>
         <el-form-item label="原始密码">
-          <el-input v-model="editPassword.password" :type="passwordType1?'':'password'" placeholder="请输入密码">
-            <i slot="suffix" :class="passwordType1?'el-icon-minus':'el-icon-view'" style="margin-top:8px;font-size:18px;" autocomplete="auto" @click="passwordType1=!passwordType1" />
+          <el-input
+            v-model="editPassword.pwd"
+            :type="passwordType1?'':'password'"
+            placeholder="请输入密码"
+          >
+            <i
+              slot="suffix"
+              :class="passwordType1?'el-icon-minus':'el-icon-view'"
+              style="margin-top:8px;font-size:18px;"
+              autocomplete="auto"
+              @click="passwordType1=!passwordType1"
+            />
           </el-input>
         </el-form-item>
         <el-form-item label="修改密码">
-          <el-input v-model="editPassword.password2" :type="passwordType2?'':'password'" placeholder="请输入密码">
-            <i slot="suffix" :class="passwordType2?'el-icon-minus':'el-icon-view'" style="margin-top:8px;font-size:18px;" autocomplete="auto" @click="passwordType2=!passwordType2" />
+          <el-input
+            v-model="editPassword.new_pwd"
+            :type="passwordType2?'':'password'"
+            placeholder="请输入密码"
+          >
+            <i
+              slot="suffix"
+              :class="passwordType2?'el-icon-minus':'el-icon-view'"
+              style="margin-top:8px;font-size:18px;"
+              autocomplete="auto"
+              @click="passwordType2=!passwordType2"
+            />
           </el-input>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
         <el-button @click="cancelEdit">取 消</el-button>
-        <el-button :loading="editLoading" type="primary" @click="edit">确 定</el-button>
+        <el-button
+          :loading="editLoading"
+          type="primary"
+          @click="edit"
+        >确 定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog
+      title="注册账号"
+      :visible.sync="registerVisible"
+      width="30%"
+      :before-close="cancelRegister"
+    >
+      <el-form :model="registerForm">
+        <el-form-item label="用户名" label-width="80px">
+          <el-input v-model="registerForm.username" />
+        </el-form-item>
+        <el-form-item label="密码" label-width="80px">
+          <el-input v-model="registerForm.password" clearable />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="cancelRegister">取 消</el-button>
+        <el-button type="primary" @click="handleRegister">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { validUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
+const defaultSettings = require('@/settings.js')
 
 export default {
   name: 'Login',
@@ -121,13 +203,19 @@ export default {
       }
     }
     return {
+      registerVisible: false,
+      title: defaultSettings.title,
       flag: false,
       dialogVisible: false,
       editLoading: false,
       editPassword: {
+        name: '',
+        pwd: '',
+        new_pwd: ''
+      },
+      registerForm: {
         username: '',
-        password: '',
-        password2: ''
+        password: ''
       },
       loginForm: {
         username: 'admin',
@@ -149,7 +237,7 @@ export default {
   },
   watch: {
     $route: {
-      handler: function(route) {
+      handler(route) {
         const query = route.query
         if (query) {
           this.redirect = query.redirect
@@ -176,6 +264,11 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    cancelRegister() {
+      this.registerVisible = false
+      this.registerForm.username = ''
+      this.registerForm.password = ''
+    },
     checkCapslock(e) {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
@@ -193,6 +286,16 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
+          // this.axios.post('http://47.115.2.135:4399/user/login', { data: { name: this.loginForm.username, pwd: this.loginForm.password },
+          //   headers: {
+          //     'Content-Type': 'application/x-www-form-urlencoded'
+          //   }})
+          //   .then((res) => {
+          //     console.log(res)
+          //   })
+          //   .catch((err) => {
+          //     console.log(err)
+          //   })
           this.loading = true
 
           this.$store.dispatch('user/login', this.loginForm)
@@ -203,6 +306,7 @@ export default {
               this.loading = false
             })
             .catch(() => {
+              // console.log(err)
               this.loading = false
               this.$message({
                 showClose: true,
@@ -220,6 +324,24 @@ export default {
         }
       })
     },
+    handleRegister() {
+      this.$api.user.registerUser({ data: { name: this.registerForm.username.trim(), pwd: this.registerForm.password }})
+        .then(res => {
+          if (res.data.status_code === 'succeed') {
+            this.$message({
+              message: '恭喜你，注册成功',
+              type: 'success'
+            })
+            this.cancelRegister()
+          } else if (res.data.status_code === 'failed') {
+            this.$message.error('此用户名已经存在')
+          }
+          // console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
         // console.log('132', cur, acc)
@@ -235,18 +357,16 @@ export default {
 
       //  修改密码
       // this.axios.post(signupUrl, this.editPassword)
-      this.$api.user.editPassword(this.editPassword)
+      this.$api.user.editPassword({ data: this.editPassword,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }})
         .then(res => {
-          if (res.data === '密码不正确') {
+          console.log(res)
+          if (res.data.status_code === 'failed') {
             this.$message({
               showClose: true,
-              message: '错了哦，密码不正确',
-              type: 'error'
-            })
-          } else if (res.data === '用户不存在') {
-            this.$message({
-              showClose: true,
-              message: '错了哦，用户不存在',
+              message: '错了哦，账号或密码不正确',
               type: 'error'
             })
           } else {
@@ -300,8 +420,8 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
@@ -344,9 +464,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 
 .login-container {
   min-height: 100%;

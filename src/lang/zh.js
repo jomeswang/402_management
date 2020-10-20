@@ -5,6 +5,7 @@ export default {
     materialM: '耗材管理',
     materialOwn: '已有耗材管理',
     materialReserve: '预定耗材管理',
+    materialLend: '耗材出借管理',
     dashboard: '首页',
     documentation: '文档',
     guide: '引导页',

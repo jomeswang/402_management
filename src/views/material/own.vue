@@ -101,9 +101,9 @@
               <el-button type="primary" size="mini" @click="editForm(row)">
                 编辑
               </el-button>
-              <!-- <el-button type="success" size="mini" @click="checkForm(row)">
-                查看
-              </el-button> -->
+              <el-button type="success" size="mini" @click="lendForm(row)">
+                出借
+              </el-button>
               <el-button type="danger" size="mini" @click="deleteForm(row)">
                 删除
               </el-button>
@@ -113,6 +113,58 @@
 
         </el-table>
       </div>
+      <el-dialog
+        title="出借耗材"
+        :visible.sync="lendVisible"
+        width="40%"
+      >
+        <el-form :model="lendQuery">
+          <el-form-item label="出借物品名称" label-width="100px">
+            <el-input
+              v-model="lendQuery.asset_name"
+              style="width: 260px"
+              class="filter-item"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="借用人" label-width="100px">
+            <el-input
+              v-model="lendQuery.borrower"
+              style="width: 260px"
+              class="filter-item"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="耗材编号" label-width="100px">
+            <el-input
+              v-model="lendQuery.asset_no_li"
+              style="width: 260px"
+              class="filter-item"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="数量" label-width="100px">
+            <el-input
+              v-model="lendQuery.amount"
+              style="width: 260px"
+              class="filter-item"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="经手人" label-width="100px">
+            <el-input
+              v-model="lendQuery.handler_status"
+              style="width: 260px"
+              class="filter-item"
+              clearable
+            />
+          </el-form-item>
+        </el-form>
+        <div slot="footer">
+          <el-button @click="cancelLendForm">取 消</el-button>
+          <el-button type="primary" @click="confirmLendForm">确 定</el-button>
+        </div>
+      </el-dialog>
 
       <el-dialog
         title="耗材编辑"
@@ -197,6 +249,7 @@ export default {
   },
   data() {
     return {
+      lendVisible: false,
       newVisible: false,
       dialogVisible: false,
       downloadLoading: false,
@@ -216,6 +269,16 @@ export default {
         supplier: '',
         category: '',
         amount: ''
+      },
+      lendQuery: {
+        asset_name: '',
+        borrower: '',
+        asset_no_li: '',
+        amount: '',
+        handler_status: '',
+        asset_no: '',
+        lend_date: '',
+        status: ''
       },
       category: ['办公用品', '资料费', '教学材料', '实验材料'],
       statusOptions: ['上报中', '已完成'],
@@ -277,6 +340,39 @@ export default {
     this.getList()
   },
   methods: {
+    lendForm(row) {
+      this.lendQuery.asset_no = row.id
+      this.lendQuery.asset_name = row.asset
+      this.lendQuery.lend_date = parseTime(new Date(), '{y}-{m}-{d}')
+      this.lendQuery.status = '出借中'
+      this.lendQuery.return_date = ''
+      this.lendVisible = true
+    },
+    cancelLendForm() {
+      Object.keys(this.lendQuery).forEach(item => {
+        this.lendQuery[item] = ''
+      })
+      this.lendVisible = false
+      this.$message('取消出借')
+    },
+    confirmLendForm() {
+      this.$api.material.newLend(this.lendQuery)
+        .then(res => {
+          // console.log(res)
+          this.$message({
+            message: '恭喜你，出借耗材登记成功',
+            type: 'success'
+          })
+          this.getList()
+          Object.keys(this.lendQuery).forEach(item => {
+            this.lendQuery[item] = ''
+          })
+          this.lendVisible = false
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     addOwn() {
       let a = 1
       Object.keys(this.listForm).forEach(item => { if (this.listForm[item] === '' && item !== 'id' && item !== 'verify_date') a = 0 })

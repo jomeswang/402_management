@@ -4,19 +4,19 @@
 
       <div class="filter-container">
         <el-input
-          v-model="listQuery.invoice_no_li"
+          v-model="listQuery.asset_name"
           style="width: 300px;"
           class="filter-item"
           clearable
-          placeholder="请输入要查找的发票号码"
+          placeholder="请输入要查找的出借物品名称"
           @clear="handleFilter"
         />
         <el-input
-          v-model="listQuery.handler"
+          v-model="listQuery.borrower"
           style="width: 300px"
           class="filter-item"
           clearable
-          placeholder="请输入要查找的经手人名称"
+          placeholder="请输入要查找的借用人名称"
           @clear="handleFilter"
         />
 
@@ -55,7 +55,7 @@
           导出
         </el-button>
 
-        <el-button class="pan-btn green-btn" style="height:37px;font-size:medium" @click="addverification">新增核销单</el-button>
+        <!-- <el-button class="pan-btn green-btn" style="height:37px;font-size:medium" @click="addverification">新增出借记录</el-button> -->
 
       </div>
 
@@ -99,40 +99,22 @@
             label="操作"
             width="250px"
           >
-            <el-button type="primary" size="mini" @click="editForm">
-              编辑
-            </el-button>
-            <el-button type="success" size="mini" @click="checkForm">
+            <template slot-scope="{row}">
+
+              <el-button v-if="row.status!='已归还'" type="primary" size="mini" @click="editForm(row)">
+                确认归还
+              </el-button>
+              <!-- <el-button type="success" size="mini" @click="checkForm">
               查看
-            </el-button>
-            <el-button type="danger" size="mini" @click="deleteForm">
+            </el-button> -->
+              <!-- <el-button type="danger" size="mini" @click="deleteForm">
               删除
-            </el-button>
+            </el-button> -->
+            </template>
           </el-table-column>
 
         </el-table>
       </div>
-      <el-dialog
-        title="预定耗材增加"
-        :visible.sync="newVisible"
-        width="50%"
-      >
-        <el-form ref="form" :model="listForm" label-width="80px" :inline="true">
-          <el-form-item v-for="(item,index) in sumlist" v-show="item.name!=='id'&&item.name!=='report_date'&&item.name!=='verify_date'&&item.name!=='status'&&item.name!=='category'" :key="index" :label="item.label">
-            <el-input v-model="listForm[item.name]" style="width: 250px" />
-          </el-form-item>
-
-          <el-form-item label="类别">
-            <el-select v-model="listForm.category" placeholder="请选择耗材类别">
-              <el-option v-for="(item,index) in category" :key="index" :label="item" :value="item" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <div slot="footer">
-          <el-button @click="newVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addReserve">确 定</el-button>
-        </div>
-      </el-dialog>
 
     </div>
   </div>
@@ -142,12 +124,12 @@
 import { parseTime } from '@/utils'
 
 export default {
-  name: 'Own',
+  name: 'Lend',
   filters: {
     statusFilter(status) {
       const statusMap = {
-        '上报中': '',
-        '已完成': 'success'
+        '出借中': '',
+        '已归还': 'success'
       }
       // console.log(statusMap[stauts])
       return statusMap[status]
@@ -155,57 +137,32 @@ export default {
   },
   data() {
     return {
+      newVisible: '',
       downloadLoading: false,
       loading: false,
       tableKey: 0,
       listQuery: {
-        invoice_no_li: '',
-        handler: ''
+        asset_name: '',
+        borrower: '',
+        status: ''
       },
-      statusOptions: ['上报中', '已完成'],
+      statusOptions: ['出借中', '已归还'],
       sumlist: [
         { name: 'id', label: '编号', width: '100px', sort: true },
-        { name: 'invoice_no_li', label: '发票号码', width: '150px' },
-        { name: 'create_data', label: '开具日期', width: '130px', sort: true },
-        { name: 'asset', label: '资产名称', width: '150px' },
-        { name: 'amount_li', label: '总份数', width: '100px' },
-        { name: 'money_li', label: '金额', width: '100px' },
-        { name: 'seller', label: '销售方', width: '100px' },
-        { name: 'handler', label: '经手人', width: '100px' },
-        { name: 'report_data', label: '上报日期', width: '130px', sort: true },
-        { name: 'verify_date', label: '核销日期', width: '130px', sort: true },
+        { name: 'asset_name', label: '出借物品名称', width: '150px' },
+        { name: 'borrower', label: '借用人', width: '150px' },
+        { name: 'asset_no', label: '出借物品编号', width: '130px' },
+        { name: 'asset_no_li', label: '耗材编号', width: '130px' },
+        { name: 'amount', label: '数量', width: '130px' },
+        { name: 'handler_status', label: '经手人', width: '100px' },
+        { name: 'lend_date', label: '出借日期', width: '200px', sort: true },
+        { name: 'return_date', label: '归还日期', width: '200px', sort: true },
         { name: 'status', label: '状态', width: '100px' }
       ],
       list: [
-        {
-          id: 1,
-          invoice_no_li: '123sd',
-          create_data: '2020/01/02',
-          asset: '13',
-          amount_li: '465',
-          money_li: '465',
-          total_money: '46',
-          seller: '46',
-          handler: '46',
-          report_data: '40',
-          verify_date: '456',
-          status: '上报中'
-        },
-        {
-          id: 2,
-          invoice_no_li: '123',
-          create_data: '2020/01/01',
-          asset: '13',
-          amount_li: '465',
-          money_li: '465',
-          total_money: '46',
-          seller: '46',
-          handler: '46',
-          report_data: '46',
-          verify_date: '456',
-          status: '已完成'
-        }
+
       ]
+
     }
   },
   mounted() {
@@ -216,10 +173,41 @@ export default {
   },
   methods: {
     getList() {
+      this.$api.material.getLend()
+        .then(res => {
+          this.list = JSON.parse(JSON.stringify(res.data.data))
 
+          // console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
-    editForm() {
-
+    editForm(row) {
+      this.$confirm('此操作将确认归还耗材', '确认归还', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success'
+      }).then(() => {
+        row.status = '已归还'
+        row.return_date = parseTime(new Date(), '{y}-{m}-{d}')
+        this.$api.material.editLend(row)
+          .then(res => {
+            console.log(res)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+        this.$message({
+          type: 'success',
+          message: '确认成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     checkForm() {
 
@@ -228,7 +216,15 @@ export default {
 
     },
     handleFilter() {
+      this.$api.material.getLend(this.listQuery)
+        .then(res => {
+          this.list = JSON.parse(JSON.stringify(res.data.data))
 
+          // console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     handleDownload() {
       this.loading = true
@@ -243,14 +239,14 @@ export default {
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: '核销管理' + parseTime(new Date(), '{y}-{m}-{d}')
+          filename: '出借耗材管理' + parseTime(new Date(), '{y}-{m}-{d}')
         })
         this.loading = false
       })
     },
     formatJson(filterVal) {
       return this.list.map(v => filterVal.map(j => {
-        if (j === 'create_data' || j === 'report_data' || j === 'verify_date') {
+        if (j === 'lend_date' || j === 'return_date' || j === 'verify_date') {
           return parseTime(v[j])
         } else {
           return v[j]

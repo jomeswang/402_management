@@ -8,7 +8,7 @@ const bill = {
     return new Promise((resolve, reject) => {
       axios.get(`${base.api1}/verify/verification/read`, { params: params })
         .then(res => {
-          console.log(res)
+          // console.log(res)
           resolve(res)
         })
         .catch(err => {

@@ -23,6 +23,12 @@ const materialRouter = {
       name: 'Reserve',
       component: () => import('@/views/material/reserve'),
       meta: { title: 'materialReserve' }
+    },
+    {
+      path: 'lend',
+      name: 'Lend',
+      component: () => import('@/views/material/lend'),
+      meta: { title: 'materialLend' }
     }
 
   ]

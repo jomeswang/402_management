@@ -121,6 +121,50 @@ const material = {
           reject(err)
         })
     })
+  },
+
+  getLend(params) {
+    return new Promise((resolve, reject) => {
+      axios.get(`${base.api1}/asset/lend_asset/read`, { params: params })
+        .then(res => {
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
+  },
+  newLend(data) {
+    return new Promise((resolve, reject) => {
+      // data = JSON.stringify(data)
+      axios.post(`${base.api1}/asset/lend_asset/create`,
+        { data: data,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }})
+        .then(res => {
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
+  },
+  editLend(data) {
+    return new Promise((resolve, reject) => {
+      // data = JSON.stringify(data)
+      axios.post(`${base.api1}/asset/lend_asset/update`,
+        { data: data,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }})
+        .then(res => {
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
   }
 }
 

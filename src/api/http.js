@@ -73,7 +73,7 @@ instance.interceptors.request.use(
     // console.log(store.state.user.headers)
     token && (config.headers = store.state.user.headers)
     // config.data['cookie'] = store.state.user.headers['cookie']
-    console.log(config)
+    // console.log(config)
     return config
   },
   error => Promise.error(error))

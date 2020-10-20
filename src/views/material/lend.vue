@@ -137,7 +137,8 @@ export default {
   },
   data() {
     return {
-      newVisible: '',
+
+      newVisible: false,
       downloadLoading: false,
       loading: false,
       tableKey: 0,
@@ -193,7 +194,7 @@ export default {
         row.return_date = parseTime(new Date(), '{y}-{m}-{d}')
         this.$api.material.editLend(row)
           .then(res => {
-            console.log(res)
+            // console.log(res)
           })
           .catch(err => {
             console.log(err)

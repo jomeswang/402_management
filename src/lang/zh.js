@@ -2,6 +2,8 @@ export default {
   route: {
     billO: '核销发票管理',
     billI: '发票管理',
+    budget: '经费管理',
+    projectBudget: '项目经费管理',
     materialM: '耗材管理',
     materialOwn: '已有耗材管理',
     materialReserve: '预定耗材管理',

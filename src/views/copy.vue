@@ -99,40 +99,22 @@
             label="操作"
             width="250px"
           >
-            <el-button type="primary" size="mini" @click="editForm">
-              编辑
-            </el-button>
-            <el-button type="success" size="mini" @click="checkForm">
-              查看
-            </el-button>
-            <el-button type="danger" size="mini" @click="deleteForm">
-              删除
-            </el-button>
+            <template slot-scope="{row}">
+
+              <el-button type="primary" size="mini" @click="editForm(row)">
+                编辑
+              </el-button>
+              <el-button type="success" size="mini" @click="checkForm(row)">
+                查看
+              </el-button>
+              <el-button type="danger" size="mini" @click="deleteForm(row)">
+                删除
+              </el-button>
+            </template>
           </el-table-column>
 
         </el-table>
       </div>
-      <el-dialog
-        title="预定耗材增加"
-        :visible.sync="newVisible"
-        width="50%"
-      >
-        <el-form ref="form" :model="listForm" label-width="80px" :inline="true">
-          <el-form-item v-for="(item,index) in sumlist" v-show="item.name!=='id'&&item.name!=='report_date'&&item.name!=='verify_date'&&item.name!=='status'&&item.name!=='category'" :key="index" :label="item.label">
-            <el-input v-model="listForm[item.name]" style="width: 250px" />
-          </el-form-item>
-
-          <el-form-item label="类别">
-            <el-select v-model="listForm.category" placeholder="请选择耗材类别">
-              <el-option v-for="(item,index) in category" :key="index" :label="item" :value="item" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <div slot="footer">
-          <el-button @click="newVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addReserve">确 定</el-button>
-        </div>
-      </el-dialog>
 
     </div>
   </div>

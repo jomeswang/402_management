@@ -11,6 +11,7 @@ import Layout from '@/layout'
 // import couponRouter from './modules/coupon'
 import billRouter from './modules/bill'
 import materialRouter from './modules/material'
+import budgetRouter from './modules/budget'
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -149,6 +150,7 @@ export const asyncRoutes = [
   // nestedRouter,
   billRouter,
   materialRouter,
+  budgetRouter,
   // roomRouter,
   // couponRouter,
 

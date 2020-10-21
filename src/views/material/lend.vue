@@ -177,7 +177,6 @@ export default {
       this.$api.material.getLend()
         .then(res => {
           this.list = JSON.parse(JSON.stringify(res.data.data))
-
           // console.log(res)
         })
         .catch(err => {

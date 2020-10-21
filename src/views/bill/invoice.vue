@@ -55,6 +55,7 @@
         </el-button>
 
         <el-button class="pan-btn green-btn" style="height:37px;font-size:medium" @click="addverification">新增发票单</el-button>
+        <el-button class="pan-btn tiffany-btn" style="height:37px;font-size:medium" @click="chooseBest">最佳发票选择</el-button>
 
       </div>
 
@@ -200,6 +201,82 @@
       </div>
     </el-dialog>
 
+    <el-dialog
+      title="经费报销最优方案选择"
+      :visible.sync="chooseVisible"
+      width="40%"
+      @close="cancelChoose"
+    >
+      <el-form inline :model="chooseInput">
+        <el-form-item label="核销经费金额" label-width="100px">
+          <el-input
+            v-model="chooseInput.input"
+            style="width: 300px"
+            class="filter-item"
+            clearable
+            @clear="clearChoose"
+          />
+        </el-form-item>
+        <el-button type="primary" @click="searchBest">查询</el-button>
+      </el-form>
+      <div v-if="chooseTable.length==0" style="margin: 0 auto">
+        没有匹配到合适的发票（请重新输入核销金额）
+      </div>
+      <el-table
+        v-if="chooseTable.length !=0"
+        :data="chooseTable"
+        style="width: 100%"
+      >
+        <el-table-column
+          header-align="center"
+          align="center"
+          prop="id"
+          label="编号"
+        />
+        <el-table-column
+          header-align="center"
+          align="center"
+          prop="invoice_no"
+          label="发票号码"
+        />
+        <el-table-column
+          header-align="center"
+          align="center"
+          prop="total_price"
+          label="金额"
+        />
+        <el-table-column
+          header-align="center"
+          align="center"
+          prop="status"
+          label="状态"
+        >
+          <template slot-scope="{row}">
+            <el-tag :type="row.status | statusFilter">
+              {{ row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+      </el-table>
+      <div
+        v-if="chooseTable.length !=0"
+        class="sum"
+        style="font-size: 15px"
+      >
+        <span>
+          剩余未核销金额： {{ chooseInput.min_diff }}
+        </span>
+        <span style="margin-left: 80px">
+          已核销金额： {{ chooseInput.used_diff }}
+        </span>
+      </div>
+      <div slot="footer">
+        <el-button @click="cancelChoose">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -223,6 +300,13 @@ export default {
   },
   data() {
     return {
+      chooseTable: [],
+      chooseInput: {
+        input: '',
+        min_diff: '',
+        used_diff: ''
+      },
+      chooseVisible: true,
       dialogVisible: false,
       checkVisible: false,
       test: '',
@@ -309,6 +393,39 @@ export default {
     this.getList()
   },
   methods: {
+    chooseBest() {
+      this.chooseVisible = true
+    },
+    searchBest() {
+      this.$api.bill.getMatchBill(this.chooseInput.input)
+        .then(res => {
+          this.chooseTable = JSON.parse(JSON.stringify(res.data.data))
+          this.chooseInput.min_diff = res.data.min_diff
+          this.chooseInput.used_diff = 0
+          this.chooseTable.forEach(item => {
+            this.chooseInput.used_diff += item.total_price
+          })
+          // console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    cancelChoose() {
+      this.chooseVisible = false
+      Object.keys(this.chooseInput).forEach(item => {
+        // console.log(res)
+        this.chooseInput[item] = ''
+      })
+      this.chooseTable.length = 0
+    },
+    clearChoose() {
+      Object.keys(this.chooseInput).forEach(item => {
+        // console.log(res)
+        this.chooseInput[item] = ''
+      })
+      this.chooseTable.length = 0
+    },
     getList(params) {
       return new Promise((resolve, reject) => {
         this.$api.bill.getInvoiceList(params)

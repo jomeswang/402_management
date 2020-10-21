@@ -80,7 +80,19 @@ const bill = {
         .then(res => { resolve(res) })
         .catch(err => { reject(err) })
     })
+  },
+  getMatchBill(params) {
+    return new Promise((resolve, reject) => {
+      axios.get(`${base.api1}/verify/invoice/match?invoice_match_money=${params}`)
+        .then(res => {
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
   }
+
 }
 
 export default bill

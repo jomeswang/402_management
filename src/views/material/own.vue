@@ -55,6 +55,7 @@
         </el-button>
 
         <el-button class="pan-btn green-btn" style="height:37px;font-size:medium" @click="addverification">新增资产管理</el-button>
+        <!-- <el-button class="pan-btn green-btn" style="height:37px;font-size:medium" @click="addverification">新增资产管理</el-button> -->
 
       </div>
 

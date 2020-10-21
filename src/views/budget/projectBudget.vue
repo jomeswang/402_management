@@ -309,6 +309,13 @@ export default {
         })
     },
     confirmProject(row) {
+      if (row.status === '已完成') {
+        this.$message({
+          message: '项目已确认完成，不能重复点击。',
+          type: 'warning'
+        })
+        return
+      }
       this.$confirm('此操作确认项目，项目确认完成?', '提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
@@ -342,7 +349,14 @@ export default {
 
     },
     handleFilter() {
-
+      this.$api.budget.getBudget(this.listQuery)
+        .then(res => {
+          // console.log(res)
+          this.list = JSON.parse(JSON.stringify(res.data.data))
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     handleDownload() {
       this.loading = true

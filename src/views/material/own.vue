@@ -135,13 +135,17 @@
               clearable
             />
           </el-form-item>
+
           <el-form-item label="耗材编号" label-width="100px">
-            <el-input
-              v-model="lendQuery.asset_no_li"
-              style="width: 260px"
-              class="filter-item"
-              clearable
-            />
+            <el-tooltip effect="light" content="如果有多个 请用空格隔开 " placement="right">
+              <el-input
+                v-model="lendQuery.asset_no_li"
+                style="width: 260px"
+                class="filter-item"
+                clearable
+              />
+            </el-tooltip>
+
           </el-form-item>
           <el-form-item label="数量" label-width="100px">
             <el-input

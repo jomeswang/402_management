@@ -67,7 +67,7 @@
           border
           fit
           highlight-current-row
-          style="width: 90%"
+          style="width: 100%"
         >
 
           <el-table-column
@@ -97,6 +97,7 @@
             header-align="center"
             align="center"
             label="操作"
+            width="300px"
           >
             <template slot-scope="{row}">
               <el-button type="primary" size="mini" @click="editForm(row)">
@@ -122,7 +123,7 @@
         <el-form :model="lendQuery">
           <el-form-item label="出借物品名称" label-width="100px">
             <el-input
-              v-model="lendQuery.asset_name"
+              v-model="lendQuery.item_name"
               style="width: 260px"
               class="filter-item"
               clearable
@@ -138,24 +139,32 @@
           </el-form-item>
 
           <el-form-item label="耗材编号" label-width="100px">
-            <el-tooltip effect="light" content="如果有多个 请用空格隔开 " placement="right">
-              <el-input
+            <!-- <el-tooltip effect="light" content="如果有多个 请用空格隔开 " placement="right"> -->
+            <el-select v-model="lendQuery.asset_no_li" multiple placeholder="耗材编号选择">
+              <el-option
+                v-for="item in lendAssetNo"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+            <!-- <el-input
                 v-model="lendQuery.asset_no_li"
                 style="width: 260px"
                 class="filter-item"
                 clearable
-              />
-            </el-tooltip>
+              /> -->
+            <!-- </el-tooltip> -->
 
           </el-form-item>
-          <el-form-item label="数量" label-width="100px">
+          <!-- <el-form-item label="数量" label-width="100px">
             <el-input
               v-model="lendQuery.amount"
               style="width: 260px"
               class="filter-item"
               clearable
             />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="经手人" label-width="100px">
             <el-input
               v-model="lendQuery.handler_status"
@@ -178,8 +187,16 @@
       >
 
         <el-form class="checkBody" label-width="80px" :model="showForm" :inline="true">
-          <el-form-item v-for="(item, index) in sumlist" v-show="item.name !== 'id'" :key="index" :label="item.label">
-            <el-tooltip effect="light" content="必填" placement="right">
+          <el-form-item v-for="(item, index) in sumlist" v-show="item.name !== 'id'&&item.name!=='amount'" :key="index" :label="item.label">
+            <el-tooltip v-if="item.name!=='asset_no_li'" effect="light" content="必填" placement="right">
+              <el-input
+                v-model="showForm[item.name]"
+                style="width: 260px"
+                class="filter-item"
+                clearable
+              />
+            </el-tooltip>
+            <el-tooltip v-else effect="light" content="如果有多个，请用空格隔开" placement="right">
               <el-input
                 v-model="showForm[item.name]"
                 style="width: 260px"
@@ -218,8 +235,13 @@
           <el-form-item label="供应商">
             <el-input v-model="listForm.supplier" style="width: 250px" />
           </el-form-item>
-          <el-form-item label="数量">
+          <!-- <el-form-item label="数量">
             <el-input v-model="listForm.amount" style="width: 250px" />
+          </el-form-item> -->
+          <el-form-item label="耗材编号">
+            <el-tooltip effect="light" content="如果有多个请用空格隔开" placement="right">
+              <el-input v-model="listForm.asset_no_li" style="width: 250px" />
+            </el-tooltip>
           </el-form-item>
           <el-form-item label="类别">
             <el-select v-model="listForm.category" placeholder="请选择耗材类别">
@@ -254,6 +276,7 @@ export default {
   },
   data() {
     return {
+      lendAssetNo: [],
       lendVisible: false,
       newVisible: false,
       dialogVisible: false,
@@ -273,15 +296,16 @@ export default {
         packer: '',
         supplier: '',
         category: '',
-        amount: ''
+        amount: '',
+        asset_no_li: ''
       },
       lendQuery: {
-        asset_name: '',
+        item_name: '',
         borrower: '',
         asset_no_li: '',
         amount: '',
         handler_status: '',
-        asset_no: '',
+        item_no: '',
         lend_date: '',
         status: ''
       },
@@ -294,6 +318,7 @@ export default {
         { name: 'packer', label: '包装商', width: '150px' },
         { name: 'supplier', label: '供应商', width: '150px' },
         { name: 'category', label: '类别', width: '150px' },
+        { name: 'asset_no_li', label: '耗材编号', width: '150px' },
         { name: 'amount', label: '数量', width: '150px' }
 
       ],
@@ -346,8 +371,11 @@ export default {
   },
   methods: {
     lendForm(row) {
-      this.lendQuery.asset_no = row.id
-      this.lendQuery.asset_name = row.asset
+      const arr = []
+      row.asset_no_li.split(' ').forEach(item => { if (item !== '')arr.push(item) })
+      this.lendAssetNo = arr
+      this.lendQuery.item_no = row.id
+      this.lendQuery.item_name = row.asset
       this.lendQuery.lend_date = parseTime(new Date(), '{y}-{m}-{d}')
       this.lendQuery.status = '出借中'
       this.lendQuery.return_date = ''
@@ -361,9 +389,15 @@ export default {
       this.$message('取消出借')
     },
     confirmLendForm() {
+      this.lendQuery.asset_no_li = this.lendQuery.asset_no_li.join(' ')
+      const arr = []
+      this.lendQuery.asset_no_li.split(' ').forEach(item => {
+        if (item !== '') arr.push(item)
+      })
+      this.lendQuery.amount = arr.length
       this.$api.material.newLend(this.lendQuery)
         .then(res => {
-          // console.log(res)
+          console.log(res)
           this.$message({
             message: '恭喜你，出借耗材登记成功',
             type: 'success'
@@ -380,7 +414,7 @@ export default {
     },
     addOwn() {
       let a = 1
-      Object.keys(this.listForm).forEach(item => { if (this.listForm[item] === '' && item !== 'id' && item !== 'verify_date') a = 0 })
+      Object.keys(this.listForm).forEach(item => { if (this.listForm[item] === '' && item !== 'id' && item !== 'amount' && item !== 'verify_date') a = 0 })
       // console.log(a, this.listForm)
       if (!a) {
         this.$message({
@@ -394,6 +428,11 @@ export default {
           type: 'success'
         })
       }
+      const arr = []
+      this.listForm.asset_no_li.split(' ').forEach(item => {
+        if (item !== '') arr.push(item)
+      })
+      this.listForm.amount = arr.length
       this.$api.material.newExist(this.listForm)
         .then(res => {
           // console.log(res)
@@ -403,7 +442,7 @@ export default {
     },
     editConfirm() {
       let a = 1
-      Object.keys(this.showForm).forEach(item => { if (this.showForm[item] === '' && item !== 'id' && item !== 'verify_date') a = 0 })
+      Object.keys(this.showForm).forEach(item => { if (this.showForm[item] === '' && item !== 'id' && item !== 'amount' && item !== 'verify_date') a = 0 })
       // console.log(a, this.listForm)
       if (!a) {
         this.$message({
@@ -417,6 +456,11 @@ export default {
           type: 'success'
         })
       }
+      const arr = []
+      this.showForm.asset_no_li.split(' ').forEach(item => {
+        if (item !== '') arr.push(item)
+      })
+      this.showForm.amount = arr.length
       this.$api.material.editExist(this.showForm)
         .then(res => {
           // console.log(res)
@@ -477,6 +521,13 @@ export default {
     handleFilter() {
       // get数据获得数据
       // this.
+      this.$api.material.getExist(this.listQuery)
+        .then(res => {
+          this.list = JSON.parse(JSON.stringify(res.data.data))
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     handleDownload() {
       this.loading = true

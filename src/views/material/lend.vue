@@ -4,7 +4,7 @@
 
       <div class="filter-container">
         <el-input
-          v-model="listQuery.asset_name"
+          v-model="listQuery.item_name"
           style="width: 300px;"
           class="filter-item"
           clearable
@@ -143,16 +143,16 @@ export default {
       loading: false,
       tableKey: 0,
       listQuery: {
-        asset_name: '',
+        item_name: '',
         borrower: '',
         status: ''
       },
       statusOptions: ['出借中', '已归还'],
       sumlist: [
         { name: 'id', label: '编号', width: '100px', sort: true },
-        { name: 'asset_name', label: '出借物品名称', width: '150px' },
+        { name: 'item_name', label: '出借物品名称', width: '150px' },
         { name: 'borrower', label: '借用人', width: '150px' },
-        { name: 'asset_no', label: '出借物品编号', width: '130px' },
+        { name: 'item_no', label: '出借物品编号', width: '130px' },
         { name: 'asset_no_li', label: '耗材编号', width: '130px' },
         { name: 'amount', label: '数量', width: '130px' },
         { name: 'handler_status', label: '经手人', width: '100px' },
@@ -193,7 +193,7 @@ export default {
         row.return_date = parseTime(new Date(), '{y}-{m}-{d}')
         this.$api.material.editLend(row)
           .then(res => {
-            // console.log(res)
+            console.log(res)
           })
           .catch(err => {
             console.log(err)
@@ -220,7 +220,7 @@ export default {
         .then(res => {
           this.list = JSON.parse(JSON.stringify(res.data.data))
 
-          // console.log(res)
+          console.log(res)
         })
         .catch(err => {
           console.log(err)

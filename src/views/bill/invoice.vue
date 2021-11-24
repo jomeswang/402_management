@@ -353,44 +353,44 @@ export default {
         { name: 'status', label: '状态', width: '100px' }
       ],
       list: [
-        // {
-        //   id: 1,
-        //   invoice_no: '123sd',
-        //   create_date: '2020/01/02',
-        //   asset: '13',
-        //   amount: '465',
-        //   unit_price: '465',
-        //   unit: '克',
-        //   total_price: '46',
-        //   seller: '46',
-        //   handler: '46',
-        //   report_date: '40',
-        //   verify_date: '456',
-        //   status: '上报中'
-        // },
-        // {
-        //   id: 2,
-        //   invoice_no: '123',
-        //   create_date: '2020/01/01',
-        //   asset: '13',
-        //   amount: '465',
-        //   unit_price: '465',
-        //   unit: '克',
-        //   total_price: '46',
-        //   seller: '46',
-        //   handler: '46',
-        //   report_date: '46',
-        //   verify_date: '456',
-        //   status: '已完成'
-        // }
+        {
+          id: 1,
+          invoice_no: '123sd',
+          create_date: '2020/01/02',
+          asset: '13',
+          amount: '465',
+          unit_price: '465',
+          unit: '克',
+          total_price: '46',
+          seller: '46',
+          handler: '46',
+          report_date: '40',
+          verify_date: '456',
+          status: '上报中'
+        },
+        {
+          id: 2,
+          invoice_no: '123',
+          create_date: '2020/01/01',
+          asset: '13',
+          amount: '465',
+          unit_price: '465',
+          unit: '克',
+          total_price: '46',
+          seller: '46',
+          handler: '46',
+          report_date: '46',
+          verify_date: '456',
+          status: '已完成'
+        }
       ]
     }
   },
   mounted() {
-    this.getList()
+    // this.getList()
   },
   activated() {
-    this.getList()
+    // this.getList()
   },
   methods: {
     chooseBest() {

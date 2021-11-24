@@ -253,51 +253,51 @@ export default {
         { name: 'status', label: '状态', width: '150px' }
       ],
       list: [
-        // {
-        //   id: 3,
-        //   asset: '123',
-        //   producer: '46',
-        //   packer: '456',
-        //   supplier: '789',
-        //   category: '789',
-        //   amount: '789'
-        // }
-        // {
-        //   id: 1,
-        //   invoice_no_li: '123sd',
-        //   create_data: '2020/01/02',
-        //   asset: '13',
-        //   amount_li: '465',
-        //   money_li: '465',
-        //   total_money: '46',
-        //   seller: '46',
-        //   handler: '46',
-        //   report_data: '40',
-        //   verify_date: '456',
-        //   status: '上报中'
-        // },
-        // {
-        //   id: 2,
-        //   invoice_no_li: '123',
-        //   create_data: '2020/01/01',
-        //   asset: '13',
-        //   amount_li: '465',
-        //   money_li: '465',
-        //   total_money: '46',
-        //   seller: '46',
-        //   handler: '46',
-        //   report_data: '46',
-        //   verify_date: '456',
-        //   status: '已完成'
-        // }
+        {
+          id: 3,
+          asset: '123',
+          producer: '46',
+          packer: '456',
+          supplier: '789',
+          category: '789',
+          amount: '789'
+        },
+        {
+          id: 1,
+          invoice_no_li: '123sd',
+          create_data: '2020/01/02',
+          asset: '13',
+          amount_li: '465',
+          money_li: '465',
+          total_money: '46',
+          seller: '46',
+          handler: '46',
+          report_data: '40',
+          verify_date: '456',
+          status: '上报中'
+        },
+        {
+          id: 2,
+          invoice_no_li: '123',
+          create_data: '2020/01/01',
+          asset: '13',
+          amount_li: '465',
+          money_li: '465',
+          total_money: '46',
+          seller: '46',
+          handler: '46',
+          report_data: '46',
+          verify_date: '456',
+          status: '已完成'
+        }
       ]
     }
   },
   mounted() {
-    this.getList()
+    // this.getList()
   },
   activated() {
-    this.getList()
+    // this.getList()
   },
   methods: {
     changeForm(row) {

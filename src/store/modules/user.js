@@ -79,21 +79,21 @@ const actions = {
       //   reject(error)
       // })
       // axios.post(loginUrl, { username: username.trim(), password: password })
-      api.user.loginUser({ data: { name: username.trim(), pwd: password },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }})
-        .then(res => {
-          console.log(res, res.data['set-cookie'])
-          const headers = { 'Content-Type': 'application/json', 'Authorization': res.data['set-cookie'] }
-          commit('SET_HEADERS', headers)
-          setAccessToken(headers)
-          const data = tokens[res.data.data.name]
-          commit('SET_TOKEN', data.token)
-          setToken(data.token)
-          resolve()
-        })
-        .catch(err => { reject(err) })
+      // api.user.loginUser({ data: { name: username.trim(), pwd: password },
+      //   headers: {
+      //     'Content-Type': 'application/x-www-form-urlencoded'
+      //   }})
+      //   .then(res => {
+      // console.log(res, res.data['set-cookie'])
+      // const headers = { 'Content-Type': 'application/json', 'Authorization': res.data['set-cookie'] }
+      // commit('SET_HEADERS', headers)
+      // setAccessToken(headers)
+      const data = tokens['admin']
+      commit('SET_TOKEN', data.token)
+      setToken(data.token)
+      resolve()
+      // })
+      // .catch(err => { reject(err) })
     })
   },
 

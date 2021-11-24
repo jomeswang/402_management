@@ -167,10 +167,10 @@ export default {
     }
   },
   mounted() {
-    this.getList()
+    // this.getList()
   },
   activated() {
-    this.getList()
+    // this.getList()
   },
   methods: {
     getList() {

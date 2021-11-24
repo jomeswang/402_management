@@ -102,9 +102,6 @@
     ]
   },
   "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "repository": {
     "type": "git",
